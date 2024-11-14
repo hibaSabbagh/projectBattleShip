@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -23,15 +24,19 @@ import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import java.util.UUID
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
     /* there is an action button that takes you to the lobby screen
     * */
+
     var playerName by remember { mutableStateOf("") }
-    Scaffold() { padding ->
+    val playerValidation = playerName.isEmpty() || playerList.any { it.name == playerName }|| !(playerName.matches(Regex("^[a-zA-Z]*")))
+        Scaffold() { padding ->
         MyImage()
         Column(
 
@@ -39,23 +44,47 @@ fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            TextField(
-                value = playerName,
-                onValueChange = { playerName = it },
-                label = { Text("Name") })
-            Spacer(modifier = Modifier.height(16.dp))
-            JoinGameButton(onClick = {navController.navigate("lobby")})
+            Box(
+                modifier = Modifier.fillMaxWidth(0.8f).background(Color(0xFFD986AC),  RoundedCornerShape(8.dp))
+                .padding(16.dp) ) {
+                    Column {
+                        TextField(
+                            value = playerName,
+                            onValueChange = { playerName = it },
+                            label = { Text("Name") },
+                            isError = playerValidation ,
+                            supportingText = {
+                                if (playerValidation) {
+                                    Text(
+                                        text = "Invalid name",
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                            }} ,
+                            // it says it was deprecated to .colors but when i change
+                            // it to colors it does not work
+                            colors = TextFieldDefaults.textFieldColors(
+                                containerColor =  Color.Transparent,
+                                focusedIndicatorColor = Color.Black,
+                                unfocusedIndicatorColor = Color.Black),
+                            modifier = Modifier.fillMaxWidth().padding(8.dp)
+                        )
 
-        }
-        if (playerName.isNotEmpty() && !playerList.any { it.name == playerName }) {
-            val playerUniqueID: String = UUID.randomUUID().toString()
-            val player: Player = Player(playerName, playerUniqueID) // picture of the game
-            playerList.add(player)
-            // text field to write name
+                        Spacer(modifier = Modifier.height(16.dp))
 
-            // button to register
+                        JoinGameButton(
+                            onClick = {
+                                if(!playerValidation){
+                                    val playerUniqueID: String = UUID.randomUUID().toString()
+                                    val player: Player = Player(playerName, playerUniqueID) // picture of the game
+                                    playerList.add(player)
+                                    navController.navigate("Lobby")
+                                }
+                            }
 
-        }
+                        )
+                    }
+                }
+            }
     }
 }
 
@@ -77,14 +106,13 @@ fun MyImage(){
     }
 }
 
+
+
 @Composable
-fun RegisterPlayer (playerList: MutableList<Player>){
+fun RegisterPlayer (playerList: MutableList<Player>, playerName: String)  {
     // we will validate the name from here as you write the system looks in the database if there is
     // a matching name and  it lets you know
-    val playerUniqueID : String = UUID.randomUUID().toString()
-    val playerName : String = readLine().toString()
-    val player : Player = Player( playerName, playerUniqueID)
-    playerList.add(player)
+
 
 }
 
