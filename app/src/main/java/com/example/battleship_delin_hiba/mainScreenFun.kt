@@ -1,7 +1,11 @@
 package com.example.battleship_delin_hiba
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -23,25 +27,48 @@ import androidx.navigation.NavController
 import java.util.UUID
 
 @Composable
-fun MainScreen(navController: NavController, playerList: MutableList<Player>){
+fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
     /* there is an action button that takes you to the lobby screen
     * */
-    // picture of the game
+    var playerName by remember { mutableStateOf("") }
+    Scaffold() { padding ->
+        Column(
+            modifier = Modifier.fillMaxSize().padding(padding),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            TextField(
+                value = playerName,
+                onValueChange = { playerName = it },
+                label = { Text("Name") })
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+        if (playerName.isNotEmpty() && !playerList.any { it.name == playerName }) {
+            val playerUniqueID: String = UUID.randomUUID().toString()
+            val player: Player = Player(playerName, playerUniqueID) // picture of the game
+            playerList.add(player)
+            // text field to write name
 
-    // text field to write name
+            // button to register
 
-    // button to register
-    JoinGameButton (onClick = {navController.navigate("lobby")})
+        }
+    }
 }
 
 @Composable
 fun MyImage(){
-    Image(
-        painter = painterResource(id = R.drawable.shippic),
-        contentDescription = "main screen picture of the game",             //beskriver bilden
-        modifier = Modifier.size(100.dp),                                   //storleken på bilden
-        contentScale = ContentScale.Crop                                    //hur bilden ska skalas
-    )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+        contentAlignment = Alignment.TopCenter
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.shippic),
+            contentDescription = "main screen picture of the game",             //beskriver bilden
+            modifier = Modifier.
+            .padding(top = 100.dp)                                   //storleken på bilden
+    }
+
 }
 
 @Composable
