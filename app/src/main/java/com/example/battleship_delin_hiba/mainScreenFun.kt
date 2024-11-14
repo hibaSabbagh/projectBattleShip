@@ -1,6 +1,9 @@
 package com.example.battleship_delin_hiba
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -22,23 +25,23 @@ import java.util.UUID
 fun MainScreen(navController: NavController, playerList: MutableList<Player>){
     /* there is an action button that takes you to the lobby screen
     * */
-    // picture of the game
+    var playerName by remember { mutableStateOf("") }
+    Scaffold() { padding -> Column (modifier = Modifier.fillMaxSize().padding(padding),
+        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center){
+        TextField (value = playerName, onValueChange = { playerName = it }, label = { Text("Name") })
+                    Spacer (modifier = Modifier.height(16.dp))
+    }
+        if() {
+            val playerUniqueID: String = UUID.randomUUID().toString()
+            val player: Player = Player(playerName, playerUniqueID) // picture of the game
+            playerList.add(player)
+            // text field to write name
 
-    // text field to write name
+            // button to register
 
-    // button to register
-    JoinGameButton (onClick = {navController.navigate("lobby")})
-}
-
-@Composable
-fun RegisterPlayer (playerList: MutableList<Player>){
-    // we will validate the name from here as you write the system looks in the database if there is
-    // a matching name and  it lets you know
-    val playerUniqueID : String = UUID.randomUUID().toString()
-    val playerName : String = readLine().toString()
-    val player : Player = Player( playerName, playerUniqueID)
-    playerList.add(player)
-
+            JoinGameButton(onClick = { navController.navigate("lobby") })
+        }
+    }
 }
 
 @Composable
@@ -50,7 +53,7 @@ fun JoinGameButton(onClick: ()->Unit){
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB60D51)),
             modifier = Modifier
                 .width(200.dp)
-                .height(100.dp).padding(16.dp).offset(x =75.dp,y= 75.dp)
+                .height(100.dp).padding(16.dp).offset(x =100.dp,y= 100.dp)
         )
         {
             Text(text = "Join Game")
