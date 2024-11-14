@@ -106,6 +106,7 @@ fun JoinGameButton(onClick: ()->Unit){
             modifier = Modifier
                 .width(200.dp)
                 .height(100.dp).padding(16.dp).offset(x =150.dp,y= 250.dp)
+
         ){
             Text(text = "Join Game")
         }
