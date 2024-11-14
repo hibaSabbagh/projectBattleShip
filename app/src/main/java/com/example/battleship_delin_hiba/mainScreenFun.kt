@@ -71,7 +71,7 @@ fun MyImage(){
             contentDescription = "main screen picture of the game",             //beskriver bilden
             modifier = Modifier
             .padding(top = 100.dp)
-            .size(200.dp),
+            .size(350.dp),
             contentScale = ContentScale.Fit
         )
     }
@@ -97,7 +97,7 @@ fun JoinGameButton(onClick: ()->Unit){
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB60D51)),
             modifier = Modifier
                 .width(200.dp)
-                .height(100.dp).padding(16.dp).offset(x =75.dp,y= 75.dp)
+                .height(100.dp).padding(16.dp).offset(x =100.dp,y= 250.dp)
         )
         {
             Text(text = "Join Game")
