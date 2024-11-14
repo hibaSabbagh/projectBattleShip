@@ -38,14 +38,15 @@ fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
     val playerValidation = playerName.isEmpty() || playerList.any { it.name == playerName }|| !(playerName.matches(Regex("^[a-zA-Z]*")))
         Scaffold() { padding ->
         MyImage()
+
         Column(
 
-            modifier = Modifier.fillMaxSize().padding(padding),
+            modifier = Modifier.fillMaxSize().padding(padding).padding(top = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Box(
-                modifier = Modifier.fillMaxWidth(0.8f).background(Color(0xFFD986AC),  RoundedCornerShape(8.dp))
+                modifier = Modifier.fillMaxWidth(0.8f).background(Color(0xFFD986AC),  RoundedCornerShape(4.dp))
                 .padding(16.dp) ) {
                     Column {
                         TextField(
@@ -125,7 +126,7 @@ fun JoinGameButton(onClick: ()->Unit){
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB60D51)),
             modifier = Modifier
                 .width(200.dp)
-                .height(100.dp).padding(16.dp).offset(x =100.dp,y= 250.dp)
+                .height(100.dp).padding(16.dp).offset(x =150.dp,y= 250.dp)
         )
         {
             Text(text = "Join Game")
