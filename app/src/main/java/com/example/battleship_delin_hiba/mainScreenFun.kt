@@ -31,16 +31,11 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
-    /* there is an action button that takes you to the lobby screen
-    * */
-
     var playerName by remember { mutableStateOf("") }
     val playerValidation = playerName.isEmpty() || playerList.any { it.name == playerName }|| !(playerName.matches(Regex("^[a-zA-Z]*")))
         Scaffold() { padding ->
         MyImage()
-
         Column(
-
             modifier = Modifier.fillMaxSize().padding(padding).padding(top = 60.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -60,18 +55,14 @@ fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
                                         text = "Invalid name",
                                         color = MaterialTheme.colorScheme.error
                                     )
-                            }} ,
-                            // it says it was deprecated to .colors but when i change
-                            // it to colors it does not work
+                            }},
                             colors = TextFieldDefaults.textFieldColors(
                                 containerColor =  Color.Transparent,
                                 focusedIndicatorColor = Color.Black,
                                 unfocusedIndicatorColor = Color.Black),
                             modifier = Modifier.fillMaxWidth().padding(8.dp)
                         )
-
                         Spacer(modifier = Modifier.height(16.dp))
-
                         JoinGameButton(
                             onClick = {
                                 if(!playerValidation){
@@ -81,11 +72,10 @@ fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
                                     navController.navigate("Lobby")
                                 }
                             }
-
                         )
                     }
                 }
-            }
+           }
     }
 }
 
@@ -107,19 +97,8 @@ fun MyImage(){
     }
 }
 
-
-
-@Composable
-fun RegisterPlayer (playerList: MutableList<Player>, playerName: String)  {
-    // we will validate the name from here as you write the system looks in the database if there is
-    // a matching name and  it lets you know
-
-
-}
-
 @Composable
 fun JoinGameButton(onClick: ()->Unit){
-
         Button(
             onClick = onClick,
             shape = CircleShape,
@@ -127,10 +106,8 @@ fun JoinGameButton(onClick: ()->Unit){
             modifier = Modifier
                 .width(200.dp)
                 .height(100.dp).padding(16.dp).offset(x =150.dp,y= 250.dp)
-        )
-        {
+        ){
             Text(text = "Join Game")
         }
-
 }
 
