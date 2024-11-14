@@ -1,5 +1,6 @@
 package com.example.battleship_delin_hiba
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import java.util.UUID
 
+@SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
@@ -62,7 +64,7 @@ fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
                                 unfocusedIndicatorColor = Color.Black),
                             modifier = Modifier.fillMaxWidth().padding(8.dp)
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(1.dp))
                         JoinGameButton(
                             onClick = {
                                 if(!playerValidation){
@@ -105,7 +107,7 @@ fun JoinGameButton(onClick: ()->Unit){
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB60D51)),
             modifier = Modifier
                 .width(200.dp)
-                .height(100.dp).padding(16.dp).offset(x =150.dp,y= 250.dp)
+                .height(100.dp).padding(16.dp).offset(x =160.dp,y= 290.dp)
 
         ){
             Text(text = "Join Game")

@@ -17,9 +17,7 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LobbyScreen(navController: NavController, playerList: MutableList<Player>){
-    /* each player has a button(challenge) that takes you to the battle screen
-    * */
+fun LobbyScreen(navController: NavController, playerList: MutableList<Player>) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -29,20 +27,37 @@ fun LobbyScreen(navController: NavController, playerList: MutableList<Player>){
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         IconButton(
-                            onClick = { navController.popBackStack()
-                            }){
-                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "back")
+                            onClick = {
+                                navController.popBackStack()
+                            }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "back"
+                            )
                         }
                         Spacer(modifier = Modifier.padding(100.dp))             //hur mycket utrymme mellan row och column
                         Text(text = "Online")
                         Spacer(modifier = Modifier.padding(5.dp))               //space mellan gröna cirkel och online
-                        Box (modifier = Modifier.size(15.dp).clip(CircleShape).background(Color.Green))
+                        Box(
+                            modifier = Modifier.size(15.dp).clip(CircleShape).background(Color.Green)
+                        )
                     }
                 }
             )
+        },
+        content = { padding ->
+            Button(
+                onClick = { navController.navigate("mainScreen")},
+                shape = CircleShape,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB60D51)),
+                modifier = Modifier.width(200.dp).height(100.dp).padding(16.dp).offset(x = 210.dp, y = 800.dp)
+            ){
+                Text(text = "Leave Game")
+            }
         }
-    ){}
+    )
 }
+
 
 
 @Composable
