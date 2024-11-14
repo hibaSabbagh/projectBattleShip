@@ -1,11 +1,19 @@
 package com.example.battleship_delin_hiba
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.navigation.NavController
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -15,20 +23,25 @@ fun LobbyScreen(navController: NavController, playerList: MutableList<Player>){
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Online") },
-                navigationIcon = { IconButton(
-                    onClick = { navController.navigate("Main") },
-
-                ){
-                    Icon (Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "back")
-                }
+                title = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(
+                            onClick = { navController.popBackStack()
+                            }){
+                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "back")
+                        }
+                        Spacer(modifier = Modifier.padding(100.dp))             //hur mycket utrymme mellan row och column
+                        Text(text = "Online")
+                        Spacer(modifier = Modifier.padding(5.dp))               //space mellan gröna cirkel och online
+                        Box (modifier = Modifier.size(15.dp).clip(CircleShape).background(Color.Green))
+                    }
                 }
             )
         }
-
-
-    ) {}
-
+    ){}
 }
 
 
