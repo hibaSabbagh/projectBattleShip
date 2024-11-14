@@ -41,7 +41,7 @@ fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
 
         Column(
 
-            modifier = Modifier.fillMaxSize().padding(padding).padding(top = 40.dp),
+            modifier = Modifier.fillMaxSize().padding(padding).padding(top = 60.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
