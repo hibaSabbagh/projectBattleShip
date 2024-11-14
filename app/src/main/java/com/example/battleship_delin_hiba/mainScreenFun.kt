@@ -32,7 +32,9 @@ fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
     * */
     var playerName by remember { mutableStateOf("") }
     Scaffold() { padding ->
+        MyImage()
         Column(
+
             modifier = Modifier.fillMaxSize().padding(padding),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -42,6 +44,8 @@ fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
                 onValueChange = { playerName = it },
                 label = { Text("Name") })
             Spacer(modifier = Modifier.height(16.dp))
+            JoinGameButton(onClick = {navController.navigate("lobby")})
+
         }
         if (playerName.isNotEmpty() && !playerList.any { it.name == playerName }) {
             val playerUniqueID: String = UUID.randomUUID().toString()
@@ -59,16 +63,18 @@ fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
 fun MyImage(){
     Box(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxSize(),
         contentAlignment = Alignment.TopCenter
     ) {
         Image(
             painter = painterResource(id = R.drawable.shippic),
             contentDescription = "main screen picture of the game",             //beskriver bilden
-            modifier = Modifier.
-            .padding(top = 100.dp)                                   //storleken på bilden
+            modifier = Modifier
+            .padding(top = 100.dp)
+            .size(200.dp),
+            contentScale = ContentScale.Fit
+        )
     }
-
 }
 
 @Composable
