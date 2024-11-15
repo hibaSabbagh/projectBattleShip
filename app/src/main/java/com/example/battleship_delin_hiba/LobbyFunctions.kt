@@ -57,26 +57,6 @@ fun LobbyScreen(navController: NavController, playerList: MutableList<Player>) {
                 Text(text = "Leave Game")
             }
         }
-    ){
-        LazyColumn( modifier = Modifier.padding(it)) {
-            items(playerList) { player -> ListItem(
-                leadingContent = {
-                    Icon(
-                        imageVector = Icons.Filled.AccountCircle,
-                        contentDescription = "person"
-                    )
-                },
-                headlineContent = TODO(),
-                modifier = TODO(),
-                overlineContent = TODO(),
-                supportingContent = TODO(),
-                trailingContent = TODO(),
-                colors = TODO(),
-                tonalElevation = TODO(),
-                shadowElevation = TODO()
-            )}
-        }
-    }
     )
 }
 
