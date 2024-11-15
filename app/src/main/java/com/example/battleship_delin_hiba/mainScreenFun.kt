@@ -36,7 +36,16 @@ fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
     var playerName by remember { mutableStateOf("") }
     val playerValidation = playerName.isEmpty() || playerList.any { it.name == playerName }|| !(playerName.matches(Regex("^[a-zA-Z]*")))
 
-    Scaffold() { padding ->
+    Scaffold(
+        floatingActionButton = {  ExtendedFloatingActionButton(
+            onClick = { navController.navigate("Lobby") },
+            modifier = Modifier.padding(16.dp),
+            shape = CircleShape,
+            containerColor = Color(0xFFD3368E),
+            contentColor = Color.Black,
+            content = {Text("Join Lobby")}
+        )}
+    ) { padding ->
         MyImage()
         Column(
             modifier = Modifier.fillMaxSize().padding(padding).padding(top = 60.dp),
@@ -66,16 +75,6 @@ fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
                             modifier = Modifier.fillMaxWidth().padding(8.dp)
                         )
                         Spacer(modifier = Modifier.height(1.dp))
-                        JoinGameButton(
-                            onClick = {
-                                if(!playerValidation){
-                                    val playerUniqueID: String = UUID.randomUUID().toString()
-                                    val player: Player = Player(playerName, playerUniqueID, "Online") // picture of the game
-                                    playerList.add(player)
-                                    navController.navigate("Lobby")
-                                }
-                            }
-                        )
                     }
                 }
            }
