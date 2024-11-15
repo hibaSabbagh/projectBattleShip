@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.*
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -55,6 +57,26 @@ fun LobbyScreen(navController: NavController, playerList: MutableList<Player>) {
                 Text(text = "Leave Game")
             }
         }
+    ){
+        LazyColumn( modifier = Modifier.padding(it)) {
+            items(playerList) { player -> ListItem(
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Filled.AccountCircle,
+                        contentDescription = "person"
+                    )
+                },
+                headlineContent = TODO(),
+                modifier = TODO(),
+                overlineContent = TODO(),
+                supportingContent = TODO(),
+                trailingContent = TODO(),
+                colors = TODO(),
+                tonalElevation = TODO(),
+                shadowElevation = TODO()
+            )}
+        }
+    }
     )
 }
 
@@ -62,9 +84,7 @@ fun LobbyScreen(navController: NavController, playerList: MutableList<Player>) {
 
 @Composable
 fun PlayerListLoop(playerList: MutableList<Player>){
-    for (player in playerList){
 
-    }
 
 }
 

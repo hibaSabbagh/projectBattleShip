@@ -6,7 +6,8 @@ import androidx.navigation.compose.*
 
 data class Player (
     val name: String,
-    val id: String
+    val id: String,
+    var status : String
 )
 
 data class Battle(

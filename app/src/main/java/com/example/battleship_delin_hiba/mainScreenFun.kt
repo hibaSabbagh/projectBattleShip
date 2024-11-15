@@ -35,7 +35,8 @@ import java.util.UUID
 fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
     var playerName by remember { mutableStateOf("") }
     val playerValidation = playerName.isEmpty() || playerList.any { it.name == playerName }|| !(playerName.matches(Regex("^[a-zA-Z]*")))
-        Scaffold() { padding ->
+
+    Scaffold() { padding ->
         MyImage()
         Column(
             modifier = Modifier.fillMaxSize().padding(padding).padding(top = 60.dp),
@@ -69,7 +70,7 @@ fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
                             onClick = {
                                 if(!playerValidation){
                                     val playerUniqueID: String = UUID.randomUUID().toString()
-                                    val player: Player = Player(playerName, playerUniqueID) // picture of the game
+                                    val player: Player = Player(playerName, playerUniqueID, "Online") // picture of the game
                                     playerList.add(player)
                                     navController.navigate("Lobby")
                                 }
@@ -114,3 +115,5 @@ fun JoinGameButton(onClick: ()->Unit){
         }
 }
 
+
+// this can be improved by using view model
