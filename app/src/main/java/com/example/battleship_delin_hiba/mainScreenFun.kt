@@ -34,11 +34,17 @@ import java.util.UUID
 @Composable
 fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
     var playerName by remember { mutableStateOf("") }
-    val playerValidation = playerName.isEmpty() || playerList.any { it.name == playerName }|| !(playerName.matches(Regex("^[a-zA-Z]*")))
+    var isJoining by remember { mutableStateOf(false) }         //flagga för att kolla om användaren har tryckt på join lobby
+    val playerValidation = playerName.isEmpty() || playerList.any { it.name == playerName } || !(playerName.matches(Regex("^[a-zA-Z]*")))
 
     Scaffold(
         floatingActionButton = {  ExtendedFloatingActionButton(
-            onClick = { handleJoinGame(navController,playerList,playerName) },
+            onClick = {
+                isJoining = true                                     //när knappen trycks på så ändras flaggan till true
+                if(!playerValidation){
+                    handleJoinGame(navController,playerList,playerName)
+                }
+            },
             modifier = Modifier.padding(16.dp),
             shape = CircleShape,
             containerColor = Color(0xFFD3368E),
@@ -60,9 +66,9 @@ fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
                             value = playerName,
                             onValueChange = { playerName = it },
                             label = { Text("Name") },
-                            isError = playerValidation ,
+                            isError = !isJoining && playerValidation ,            //visa fel endast efter att användaren har tryckt på join lobby
                             supportingText = {
-                                if (playerValidation) {
+                                if (!isJoining && playerValidation) {             //visa fel om join lobby har tryckts men namnet är ogiltigt
                                     Text(
                                         text = "Invalid name",
                                         color = MaterialTheme.colorScheme.error
@@ -72,7 +78,7 @@ fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
                                 containerColor =  Color.Transparent,
                                 focusedIndicatorColor = Color.Black,
                                 unfocusedIndicatorColor = Color.Black),
-                            modifier = Modifier.fillMaxWidth().padding(8.dp)
+                                modifier = Modifier.fillMaxWidth().padding(8.dp)
                         )
                         Spacer(modifier = Modifier.height(1.dp))
                     }
@@ -84,39 +90,38 @@ fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
 @Composable
 fun MyImage(){
     Box(
-        modifier = Modifier
-            .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.TopCenter
     ) {
         Image(
             painter = painterResource(id = R.drawable.shippic),
             contentDescription = "main screen picture of the game",             //beskriver bilden
-            modifier = Modifier
-            .padding(top = 100.dp)
-            .size(350.dp),
+            modifier = Modifier.padding(top = 100.dp).size(350.dp),
             contentScale = ContentScale.Fit
         )
     }
 }
 
-@Composable
-fun JoinGameButton(onClick: ()->Unit){
-        Button(
-            onClick = onClick,
-            shape = CircleShape,
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB60D51)),
-            modifier = Modifier
-                .width(200.dp)
-                .height(100.dp).padding(16.dp).offset(x =160.dp,y= 290.dp)
-
-        ){
-            Text(text = "Join Game")
-        }
-}
 
 fun handleJoinGame(navController: NavController, playerList: MutableList<Player>, playerName: String){
     val player = Player(playerName, UUID.randomUUID().toString(),"online")
-    playerList.add(player)
-    navController.navigate("Lobby")
+    if(!playerName.isEmpty() && !(playerList.any { it.name == playerName }) && (playerName.matches(Regex("^[a-zA-Z]*")))) {
+        playerList.add(player)
+        navController.navigate("Lobby")
+    }
 }
-// this can be improved by using view model
+
+
+
+
+//@Composable
+//fun JoinGameButton(onClick: ()->Unit){
+//        Button(
+//            onClick = onClick,
+//            shape = CircleShape,
+//            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB60D51)),
+//            modifier = Modifier.width(200.dp).height(100.dp).padding(16.dp).offset(x =160.dp,y= 290.dp)
+//        ){
+//            Text(text = "Join Game")
+//        }
+//}
