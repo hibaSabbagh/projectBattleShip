@@ -1,25 +1,36 @@
 package com.example.battleship_delin_hiba
 
+import android.R.attr.padding
+import android.R.attr.title
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Person
+
 import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialogDefaults.shape
+import androidx.compose.material3.CheckboxDefaults.colors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.navigation.NavController
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LobbyScreen(navController: NavController, playerList: MutableList<Player>) {
+fun LobbyScreen(navController: NavController, playerList: MutableList<Player>, battlesList: MutableList<Battle>) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -41,40 +52,73 @@ fun LobbyScreen(navController: NavController, playerList: MutableList<Player>) {
                         Text(text = "Online")
                         Spacer(modifier = Modifier.padding(5.dp))               //space mellan gröna cirkel och online
                         Box(
-                            modifier = Modifier.size(15.dp).clip(CircleShape).background(Color.Green)
+                            modifier = Modifier.size(15.dp).clip(CircleShape)
+                                .background(Color.Green)
                         )
                     }
                 }
             )
         },
-        content = { padding ->
-            Button(
-                onClick = { navController.navigate("mainScreen")},
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = { navController.navigate("Main")
+                           playerList.removeLast()},   // we can change this when when we connect to the server
+                modifier = Modifier.padding(16.dp),
                 shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB60D51)),
-                modifier = Modifier.width(200.dp).height(100.dp).padding(16.dp).offset(x = 210.dp, y = 800.dp)
-            ){
-                Text(text = "Leave Game")
+                containerColor = Color(0xFFD3368E),
+                contentColor = Color.Black,
+                content = {Text("Leave Lobby")}
+            ) },content = { padding-> PlayerListLoop(padding, playerList, navController)},
+                bottomBar = {
+                    BottomAppBar(
+                        content = { Row { Text( text = "      ${battlesList.size} active games") }
+                        Icon( painter = painterResource(id = R.drawable.directions_boat),
+                            contentDescription = "boat")}
+                    )
+
+               }
+    )
+
+}
+
+
+
+
+@Composable
+fun PlayerListLoop( padding : PaddingValues, playerList: MutableList<Player>, navController: NavController){
+    if (playerList.isEmpty()){
+        Text(text = "No players online")
+    }else {
+        LazyColumn(modifier = Modifier.padding(padding))
+        {
+            items(playerList) { player ->
+                ListItem(
+                    leadingContent = {
+                        Icon(
+                            imageVector = Icons.Filled.AccountCircle,
+                            contentDescription = "person"
+                        )
+                    },
+                    headlineContent = { Text(text = player.name) },
+                    trailingContent = {
+                        Button(
+                            onClick = { navController.navigate("Battle") },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD3368E)),
+                           ){ Text(text = "Challenge") }
+                    }
+
+                )
             }
         }
-    )
+    }
 }
 
 
 
-@Composable
-fun PlayerListLoop(playerList: MutableList<Player>){
+//@Composable
+//fun  ChallengeButton(player: Player){}
 
 
-}
-
-@Composable
-fun  ChallengeButton(player: Player){}
-
-@Composable
-fun ActiveGames (player: Player, battlesMap: MutableMap<String, Battle>){
-
-}
 
 @Composable
 fun ChallengePopup(){
