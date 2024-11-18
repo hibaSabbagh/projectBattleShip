@@ -22,11 +22,11 @@ data class Battle(
 fun BattleNav(){
     val navController = rememberNavController()
     val playerList = remember {mutableStateListOf<Player>() }
-    val battlesMap = remember {mutableStateMapOf<String,Battle>()}
+    val battlesList = remember {mutableStateListOf<Battle>()}
 
     NavHost(navController = navController, startDestination = "Main"){
         composable("Main"){ MainScreen(navController,playerList) }
-        composable("Lobby"){ LobbyScreen(navController,playerList ) }
+        composable("Lobby"){ LobbyScreen(navController,playerList, battlesList) }
         composable("Battle"){ BattleScreen(navController) }
 
     }

@@ -38,7 +38,7 @@ fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
 
     Scaffold(
         floatingActionButton = {  ExtendedFloatingActionButton(
-            onClick = { navController.navigate("Lobby") },
+            onClick = { handleJoinGame(navController,playerList,playerName) },
             modifier = Modifier.padding(16.dp),
             shape = CircleShape,
             containerColor = Color(0xFFD3368E),
@@ -114,5 +114,9 @@ fun JoinGameButton(onClick: ()->Unit){
         }
 }
 
-
+fun handleJoinGame(navController: NavController, playerList: MutableList<Player>, playerName: String){
+    val player = Player(playerName, UUID.randomUUID().toString(),"online")
+    playerList.add(player)
+    navController.navigate("Lobby")
+}
 // this can be improved by using view model

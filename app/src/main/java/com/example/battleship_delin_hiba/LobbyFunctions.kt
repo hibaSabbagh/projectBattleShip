@@ -1,15 +1,19 @@
 package com.example.battleship_delin_hiba
 
+import android.R.attr.padding
+import android.R.attr.title
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Person
+
 import androidx.compose.material3.*
 import androidx.compose.material3.AlertDialogDefaults.shape
 import androidx.compose.material3.CheckboxDefaults.colors
@@ -19,14 +23,14 @@ import androidx.navigation.NavController
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LobbyScreen(navController: NavController, playerList: MutableList<Player>) {
-    printPlayers(playerList)
+fun LobbyScreen(navController: NavController, playerList: MutableList<Player>, battlesList: MutableList<Battle>) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -58,14 +62,21 @@ fun LobbyScreen(navController: NavController, playerList: MutableList<Player>) {
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = { navController.navigate("Main")
-                           playerList.remove(Player("","",""))},
+                           playerList.removeLast()},   // we can change this when when we connect to the server
                 modifier = Modifier.padding(16.dp),
                 shape = CircleShape,
                 containerColor = Color(0xFFD3368E),
                 contentColor = Color.Black,
                 content = {Text("Leave Lobby")}
-            ) },
-        content = { padding -> PlayerListLoop(padding,playerList,navController)}
+            ) },content = { padding-> PlayerListLoop(padding, playerList, navController)},
+                bottomBar = {
+                    BottomAppBar(
+                        content = { Row { Text( text = "      ${battlesList.size} active games") }
+                        Icon( painter = painterResource(id = R.drawable.directions_boat),
+                            contentDescription = "boat")}
+                    )
+
+               }
     )
 
 }
@@ -74,7 +85,7 @@ fun LobbyScreen(navController: NavController, playerList: MutableList<Player>) {
 
 
 @Composable
-fun PlayerListLoop(padding: PaddingValues,playerList: MutableList<Player>, navController: NavController){
+fun PlayerListLoop( padding : PaddingValues, playerList: MutableList<Player>, navController: NavController){
     if (playerList.isEmpty()){
         Text(text = "No players online")
     }else {
@@ -84,17 +95,16 @@ fun PlayerListLoop(padding: PaddingValues,playerList: MutableList<Player>, navCo
                 ListItem(
                     leadingContent = {
                         Icon(
-                            imageVector = Icons.Filled.Person,
+                            imageVector = Icons.Filled.AccountCircle,
                             contentDescription = "person"
                         )
                     },
                     headlineContent = { Text(text = player.name) },
                     trailingContent = {
-                        Button(onClick = { navController.navigate("Battle") }) {
-                            Text(
-                                "Challenge"
-                            )
-                        }
+                        Button(
+                            onClick = { navController.navigate("Battle") },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD3368E)),
+                           ){ Text(text = "Challenge") }
                     }
 
                 )
@@ -103,20 +113,12 @@ fun PlayerListLoop(padding: PaddingValues,playerList: MutableList<Player>, navCo
     }
 }
 
-@Composable
-fun printPlayers(playerList: MutableList<Player>){
-    for (player in playerList){
-        println(player.name)
-    }
-}
 
-@Composable
-fun  ChallengeButton(player: Player){}
 
-@Composable
-fun ActiveGames (player: Player, battlesMap: MutableMap<String, Battle>){
+//@Composable
+//fun  ChallengeButton(player: Player){}
 
-}
+
 
 @Composable
 fun ChallengePopup(){
