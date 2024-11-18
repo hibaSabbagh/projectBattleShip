@@ -66,7 +66,7 @@ fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
                             value = playerName,
                             onValueChange = { playerName = it },
                             label = { Text("Name") },
-                            isError = !isJoining && playerValidation ,            //visa fel endast efter att användaren har tryckt på join lobby
+                            isError = !isJoining && playerValidation ,            //visa fel endast efter att användaren har tryckt på join lobby.
                             supportingText = {
                                 if (!isJoining && playerValidation) {             //visa fel om join lobby har tryckts men namnet är ogiltigt
                                     Text(

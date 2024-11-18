@@ -68,7 +68,7 @@ fun BattleScreen(navController: NavController){
                 contentColor = Color.Black,
                 content = { Text("Leave Game") }
             ) },
-        content = TODO()
+        content = TODO()            //inte färdig
 
     )
 
