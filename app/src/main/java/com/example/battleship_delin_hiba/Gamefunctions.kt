@@ -38,39 +38,39 @@ fun BattleScreen(navController: NavController){
     * missed will have x on them hit will have a red dot on them
     * */
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(
-                            onClick = {
-                                navController.popBackStack()
-                            }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "back"
-                            )
-                        }
-                    }
-                }
-            )
-        },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { navController.navigate("Lobby") },
-                modifier = Modifier.padding(16.dp),
-                shape = CircleShape,
-                containerColor = Color(0xFFD3368E),
-                contentColor = Color.Black,
-                content = { Text("Leave Game") }
-            ) },
-        content = TODO()            //inte färdig
-
-    )
+//    Scaffold(
+//        topBar = {
+//            TopAppBar(
+//                title = {
+//                    Row(
+//                        modifier = Modifier.fillMaxWidth(),
+//                        verticalAlignment = Alignment.CenterVertically
+//                    ) {
+//                        IconButton(
+//                            onClick = {
+//                                navController.popBackStack()
+//                            }) {
+//                            Icon(
+//                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+//                                contentDescription = "back"
+//                            )
+//                        }
+//                    }
+//                }
+//            )
+//        },
+//        floatingActionButton = {
+//            ExtendedFloatingActionButton(
+//                onClick = { navController.navigate("Lobby") },
+//                modifier = Modifier.padding(16.dp),
+//                shape = CircleShape,
+//                containerColor = Color(0xFFD3368E),
+//                contentColor = Color.Black,
+//                content = { Text("Leave Game") }
+//            ) },
+//        content = TODO()            //inte färdig
+//
+//    )
 
 }
 

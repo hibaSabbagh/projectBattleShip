@@ -5,6 +5,7 @@ import android.R.attr.title
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -13,7 +14,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Person
-
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.material3.*
 import androidx.compose.material3.AlertDialogDefaults.shape
 import androidx.compose.material3.CheckboxDefaults.colors
@@ -42,7 +45,8 @@ fun LobbyScreen(navController: NavController, playerList: MutableList<Player>, b
                         IconButton(
                             onClick = {
                                 navController.popBackStack()
-                            }) {
+                            }
+                        ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "back"
@@ -61,22 +65,36 @@ fun LobbyScreen(navController: NavController, playerList: MutableList<Player>, b
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { navController.navigate("Main")
-                           playerList.removeLast()},   // we can change this when when we connect to the server
+                onClick = { handleLeaveLobby(navController, playerList)},   // we can change this when when we connect to the server
                 modifier = Modifier.padding(16.dp),
                 shape = CircleShape,
                 containerColor = Color(0xFFD3368E),
                 contentColor = Color.Black,
                 content = {Text("Leave Lobby")}
-            ) },content = { padding-> PlayerListLoop(padding, playerList, navController)},
-                bottomBar = {
-                    BottomAppBar(
-                        content = { Row { Text( text = "      ${battlesList.size} active games") }
-                        Icon( painter = painterResource(id = R.drawable.directions_boat),
-                            contentDescription = "boat")}
-                    )
 
-               }
+            )
+       },
+        content = { padding -> PlayerListLoop(padding, playerList, navController)},
+        bottomBar = {
+            BottomAppBar(
+                containerColor = Color(0xFFD3368E),
+                contentColor = Color.Black,
+                content = {
+                    Row (
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        Text (text = "${battlesList.size} active games")
+                        Icon( painter = painterResource(id = R.drawable.directions_boat),
+                            contentDescription = "boat")
+                    }
+
+                }
+
+            )
+
+       }
     )
 
 }
@@ -118,7 +136,10 @@ fun PlayerListLoop( padding : PaddingValues, playerList: MutableList<Player>, na
 //@Composable
 //fun  ChallengeButton(player: Player){}
 
-
+fun handleLeaveLobby(navController: NavController, playerList: MutableList<Player>){
+    navController.navigate("Main")
+    playerList.removeLast()
+}
 
 @Composable
 fun ChallengePopup(){
