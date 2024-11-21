@@ -28,9 +28,8 @@ fun BattleNav(){
         composable("Main"){ MainScreen(navController,playerList) }
         composable("Lobby"){ LobbyScreen(navController,playerList, battlesList) }
         composable("Battle"){ BattleScreen(navController) }
+        composable("SetUpBoard"){ SetUpBoardScreen(navController, playerList, battlesList) }
 
     }
-
-
 }
 

@@ -3,27 +3,19 @@ package com.example.battleship_delin_hiba
 import android.R.attr.padding
 import android.R.attr.title
 import android.annotation.SuppressLint
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.*
 import androidx.compose.material.icons.automirrored.filled.*
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material.icons.filled.*
+import androidx.compose.runtime.*
 import androidx.compose.material3.*
 import androidx.compose.material3.AlertDialogDefaults.shape
 import androidx.compose.material3.CheckboxDefaults.colors
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.ui.*
 import androidx.navigation.NavController
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -120,7 +112,7 @@ fun PlayerListLoop( padding : PaddingValues, playerList: MutableList<Player>, na
                     headlineContent = { Text(text = player.name) },
                     trailingContent = {
                         Button(
-                            onClick = { navController.navigate("Battle") },
+                            onClick = { navController.navigate("SetUpBoard") },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD3368E)),
                            ){ Text(text = "Challenge") }
                     }
