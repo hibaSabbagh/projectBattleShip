@@ -29,6 +29,25 @@ fun SetUpBoardScreen(navController: NavController, playerList: MutableList<Playe
             boardDataChange[i][j] = 0
         }
     }
+    boardDataChange[0][0] = 1
+
+    boardDataChange[0][0] = 1
+
+    boardDataChange[2][0] = 1
+    boardDataChange[3][0] = 1
+    boardDataChange[4][0] = 1
+    boardDataChange[5][0] = 1
+
+    boardDataChange[0][0] = 1
+    boardDataChange[0][0] = 1
+    boardDataChange[0][0] = 1
+
+    boardDataChange[0][0] = 1
+    boardDataChange[0][0] = 1
+
+    boardDataChange[0][0] = 1
+    boardDataChange[0][0] = 1
+
     class Ship(
         val size : Int,
         x: Int,
