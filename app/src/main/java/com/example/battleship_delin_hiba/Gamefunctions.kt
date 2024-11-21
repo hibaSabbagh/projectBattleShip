@@ -26,7 +26,7 @@ fun BattleScreen(navController: NavController){
     val boardData = Array(tiles) { Array(tiles) { 0 } }
     for(i in boardData.indices){
         for(j in boardData[i].indices){
-            boardData[i][j] = (0..1).random()
+            boardData[i][j] = 0    //(0..1).random()
         }
     }
     Scaffold(
@@ -112,12 +112,15 @@ fun BattleScreen(navController: NavController){
                                 color = if (boardData[row][column] == 0) {
                                     Color.White
                                 } else {
-                                    Color.Red
+                                    Color.Gray
                                 },
                                 shape = RectangleShape
                             )
                             .size(30.dp)
-                            .border(1.dp, Color.Black).clickable{}
+
+                            .border(1.dp, Color.Black).clickable{ boardData[row][column] = 1 }
+
+
                         )
                 }
             }
@@ -142,7 +145,7 @@ fun BattleScreen(navController: NavController){
                                 shape = RectangleShape
                             )
                             .size(15.dp)
-                            .border(1.dp, Color.Black).clickable{}
+                            .border(1.dp, Color.Black)
                     )
                 }
             }
