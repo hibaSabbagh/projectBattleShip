@@ -25,7 +25,7 @@ fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
     Scaffold(
         floatingActionButton = {  ExtendedFloatingActionButton(
             onClick = {
-                isJoining = true                                     //när knappen trycks på så ändras flaggan till true
+                isJoining = true                                                   //när knappen trycks på så ändras flaggan till true
                 if(!playerValidation){
                     handleJoinGame(navController,playerList,playerName)
                 }

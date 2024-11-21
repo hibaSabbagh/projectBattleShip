@@ -20,8 +20,7 @@ enum class  Orientation{
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SetUpBoardScreen(navController: NavController, playerList: MutableList<Player>, battlesList: MutableList<Battle>)
-{
+fun SetUpBoardScreen(navController: NavController, playerList: MutableList<Player>, battlesList: MutableList<Battle>) {
     val tiles = 10
     val boardDataChange = Array(tiles) { Array(tiles) { 0 } }
     for(i in boardDataChange.indices){
@@ -115,36 +114,31 @@ fun SetUpBoardScreen(navController: NavController, playerList: MutableList<Playe
             )
         },
         content = { padding ->
-            Column (modifier = Modifier
-                .padding(padding)
-                .fillMaxSize(),
+            Column (modifier = Modifier.padding(padding).fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ){
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(tiles),
-                    modifier = Modifier
-                        .padding(start = 50.dp, end = 50.dp, top = 50.dp).fillMaxWidth().height(400.dp)
+                    modifier = Modifier.padding(start = 50.dp, end = 50.dp, top = 50.dp).fillMaxWidth().height(400.dp)
                 ){
                     itemsIndexed(boardDataChange.flatten()){ index, tileValue ->
                         val row = index / tiles
                         val column = index % tiles
-                        Box(Modifier.fillMaxSize()
-                                .background(
-                                    color = if (boardDataChange[row][column] == 0) {
+                        Box(Modifier.fillMaxSize().background(
+                            color = if (boardDataChange[row][column] == 0) {
                                         Color.White
-                                    } else {
+                                } else {
                                         Color.LightGray
-                                    },
-                                    shape = RectangleShape
-                                )
-                                .size(30.dp)
-                                .border(1.dp, Color.Black).clickable { boardDataChange[row][column] = 1 }
+                                },
+                            shape = RectangleShape
+                        )
+                            .size(30.dp)
+                            .border(1.dp, Color.Black).clickable { boardDataChange[row][column] = 1 }
                         )
                     }
                 }
             }
         }
     )
-
 }
