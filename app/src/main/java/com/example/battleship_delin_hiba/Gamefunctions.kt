@@ -33,38 +33,7 @@ fun BattleScreen(navController: NavController){
         topBar = {
             TopAppBar(
                 title = {
-                    Row(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Spacer(modifier = Modifier.width(20.dp))
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ){
-                            Icon(                                               //ikon för player1
-                                imageVector = Icons.Filled.AccountCircle,
-                                contentDescription = "person",
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Text( text = "player 1")
-                        }
-                        Spacer(modifier = Modifier.width(20.dp))             //space mellan player1 och vs.
-                        Text(
-                            text = "vs.",
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                        )
-                        Spacer(modifier = Modifier.width(20.dp))            //space mellan vs. och player2
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ){
-                            Icon(                                                 //ikon för player2
-                                imageVector = Icons.Filled.AccountCircle,
-                                contentDescription = "person",
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Text( text = "player 2")
-                        }
-                    }
+
                 },
                 navigationIcon = {                                                        //för tillbaka knappen
                     IconButton(
@@ -90,12 +59,46 @@ fun BattleScreen(navController: NavController){
         }
     ) { padding ->
         Column( modifier = Modifier
-            .padding(padding)
+            .padding()
             .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top){
+            Spacer(modifier = Modifier.height(100.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 50.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Spacer(modifier = Modifier.width(20.dp))
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ){
+                    Icon(                                               //ikon för player1
+                        imageVector = Icons.Filled.AccountCircle,
+                        contentDescription = "person",
+                        modifier = Modifier.size(40.dp)
+                    )
+                    Text( text = "player 1")
+                }
+                Spacer(modifier = Modifier.width(30.dp))             //space mellan player1 och vs.
+                Text(
+                    text = "vs.",
+                    modifier = Modifier.padding(horizontal = 16.dp).size(40.dp),
+                )
+                Spacer(modifier = Modifier.width(20.dp))            //space mellan vs. och player2
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ){
+                    Icon(                                                 //ikon för player2
+                        imageVector = Icons.Filled.AccountCircle,
+                        contentDescription = "person",
+                        modifier = Modifier.size(40.dp)
+                    )
+                    Text( text = "player 2")
+                }
+            }
             Spacer(
-                modifier = Modifier.height(10.dp))
+                modifier = Modifier.height(50.dp))
             LazyVerticalGrid(
                 columns = GridCells.Fixed(tiles),
                 modifier = Modifier
@@ -126,9 +129,7 @@ fun BattleScreen(navController: NavController){
             }
             LazyVerticalGrid(
                 columns = GridCells.Fixed(tiles),
-                modifier = Modifier
-                    .padding(start = 0.dp, end = 0.dp).
-                    size(width = 200.dp, height = 200.dp)
+                modifier = Modifier.size(width = 200.dp, height = 200.dp).padding(bottom = 10.dp)
             ) {
                 itemsIndexed(boardData.flatten()) { index, tileValue ->
                     val row = index / tiles
