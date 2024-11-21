@@ -34,23 +34,21 @@ fun LobbyScreen(navController: NavController, playerList: MutableList<Player>, b
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        IconButton(
-                            onClick = {
-                                navController.popBackStack()
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "back"
-                            )
-                        }
                         Spacer(modifier = Modifier.padding(100.dp))             //hur mycket utrymme mellan row och column
                         Text(text = "Online")
                         Spacer(modifier = Modifier.padding(5.dp))               //space mellan gröna cirkel och online
                         Box(
-                            modifier = Modifier.size(15.dp).clip(CircleShape)
-                                .background(Color.Green)
+                            modifier = Modifier.size(15.dp).clip(CircleShape).background(Color.Green)
                         )
+                    }
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = { navController.navigate("Main") }
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "back")
                     }
                 }
             )
@@ -90,7 +88,6 @@ fun LobbyScreen(navController: NavController, playerList: MutableList<Player>, b
     )
 
 }
-
 
 
 
