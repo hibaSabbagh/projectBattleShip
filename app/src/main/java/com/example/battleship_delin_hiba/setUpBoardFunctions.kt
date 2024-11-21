@@ -13,6 +13,11 @@ import androidx.compose.ui.graphics.*
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
+enum class  Orientation{
+    HORIZONTAL,
+    VERTICAL
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SetUpBoardScreen(navController: NavController, playerList: MutableList<Player>, battlesList: MutableList<Battle>)
@@ -21,9 +26,40 @@ fun SetUpBoardScreen(navController: NavController, playerList: MutableList<Playe
     val boardDataChange = Array(tiles) { Array(tiles) { 0 } }
     for(i in boardDataChange.indices){
         for(j in boardDataChange[i].indices){
-            boardDataChange[i][j] = 0 //(0..1).random()
+            boardDataChange[i][j] = 0
         }
     }
+    class Ship(
+        val size : Int,
+        x: Int,
+        y: Int,
+        orientation : Orientation = Orientation.VERTICAL
+    ){
+
+    }
+
+
+
+    /*
+    *    1 0 0 0 1 1 0 0 0 0
+    *    0 0 0 0 0 0 0 0 0 1
+    *    1 0 0 0 0 0 0 0 0 1
+    *    1 0 0 0 0 0 0 0 0 1
+    *    1 0 0 0 1 0 0 0 0 0
+    *    1 0 0 0 0 0 0 0 0 0
+    *    0 0 0 0 0 0 0 0 0 0
+    *    0 0 0 0 0 0 0 0 0 0
+    *    0 0 0 0 0 0 0 0 0 0
+    *    0 0 0 1 1 0 0 0 0 0
+    *
+    *
+    *
+    *
+    *
+    *
+    *
+    *
+    * */
     Scaffold (
         topBar = {
             TopAppBar(
