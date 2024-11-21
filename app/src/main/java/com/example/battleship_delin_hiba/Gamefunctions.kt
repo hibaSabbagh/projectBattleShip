@@ -37,7 +37,7 @@ fun BattleScreen(navController: NavController){
                 },
                 navigationIcon = {                                                        //för tillbaka knappen
                     IconButton(
-                        onClick = { navController.navigate("Main") }
+                        onClick = { navController.navigate("Lobby") }
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
