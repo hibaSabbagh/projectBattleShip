@@ -6,30 +6,29 @@ import androidx.navigation.compose.*
 
 data class Player (
     val name: String,
-    val id: String,
-    var status : String
+    var status : String             //status kan vara online eller inbattle
 )
 
-data class Battle(
-    val player1: Player,
-    val player2: Player,
-    val gameID: String
+data class Battle(   //lägg till game board med en list eller en mapp
+    val player1Id: String = "",
+    val player2Id: String = "",
+    val gamestate: String = "Invite",  //kan bli enum  "player1_turn", "player2_turn", "player1_win", "player2_win", "draw"
+    var gameBoard: List<Int> = List(100) {0}
 )
-
 
 
 @Composable
 fun BattleNav(){
     val navController = rememberNavController()
-    val playerList = remember {mutableStateListOf<Player>() }
-    val battlesList = remember {mutableStateListOf<Battle>()}
+    val model = GameModel()
+    model.initGame()
 
-    NavHost(navController = navController, startDestination = "Main"){
-        composable("Main"){ MainScreen(navController,playerList) }
-        composable("Lobby"){ LobbyScreen(navController,playerList, battlesList) }
-        composable("Battle"){ BattleScreen(navController) }
-        composable("SetUpBoard"){ SetUpBoardScreen(navController, playerList, battlesList) }
-
+    NavHost(navController = navController, startDestination = "Main"){   //lägger in model i alla
+        composable("Main"){ MainScreen(navController,model) }
+        composable("Lobby"){ LobbyScreen(navController,model) }
+        composable("SetUpBoard"){ SetUpBoardScreen(navController,model) }
+        composable("Battle"){ backStackEntry -> val battleID = backStackEntry.arguments?.getString("battleId")
+            BattleScreen(navController, model) }
     }
 }
 

@@ -1,6 +1,9 @@
 package com.example.battleship_delin_hiba
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.SharedPreferences
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.*
@@ -9,71 +12,88 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.flow.asStateFlow
 import java.util.UUID
 
 @SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(navController: NavController, playerList: MutableList<Player>) {
-    var playerName by remember { mutableStateOf("") }
-    var isJoining by remember { mutableStateOf(false) }                                //flagga för att kolla om användaren har tryckt på join lobby
-    val playerValidation = playerName.isEmpty() || playerList.any { it.name == playerName } || !(playerName.matches(Regex("^[a-zA-Z]*")))
+fun MainScreen(navController: NavController, model: GameModel) {  //för firebase
+    val sharedPreferences = LocalContext.current.getSharedPreferences("BattelShipPrefs", Context.MODE_PRIVATE)
+    val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
 
-    Scaffold(
-        floatingActionButton = {  ExtendedFloatingActionButton(
-            onClick = {
-                isJoining = true                                                   //när knappen trycks på så ändras flaggan till true
-                if(!playerValidation){
-                    handleJoinGame(navController,playerList,playerName)
-                }
-            },
-            modifier = Modifier.padding(16.dp),
-            shape = CircleShape,
-            containerColor = Color(0xFFD3368E),
-            contentColor = Color.Black,
-            content = {Text("Join Lobby")}
-        )}
-    ) { padding ->
-        MyImage()
-        Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(top = 60.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Box(
-                modifier = Modifier.fillMaxWidth(0.8f).background(Color(0xFFD986AC),  RoundedCornerShape(4.dp))
-                .padding(16.dp) ) {
+
+    LaunchedEffect(Unit) {
+        model.localPlayerId.value = sharedPreferences.getString("playerId", null)
+        if(model.localPlayerId.value != null){
+            navController.navigate("Lobby")
+        }
+    }
+    if(model.localPlayerId.value == null){
+        var playerName by remember { mutableStateOf("") }
+        var isJoining by remember { mutableStateOf(false) }                                                       //flagga för att kolla om användaren har tryckt på join lobby
+        val playerInvalid = playerName.isEmpty() || players.any { it.value.name == playerName } || !(playerName.matches(Regex("^[a-zA-Z]*")))
+
+        Scaffold(
+            floatingActionButton = {  ExtendedFloatingActionButton(                  //för join lobby knappen
+                onClick = {
+                    isJoining = true                                                   //när knappen trycks på så ändras flaggan till true
+                    if(!playerInvalid){
+                       handleJoinGame(navController, model, playerName, sharedPreferences)              //anropar handleJoinGame om namnet är giltigt
+                    }
+                },
+                modifier = Modifier.padding(16.dp),
+                shape = CircleShape,
+                containerColor = Color(0xFFD3368E),
+                contentColor = Color.Black,
+                content = {Text("Join Lobby")}
+            )}
+        ) { padding ->
+            MyImage()
+            Column(
+                modifier = Modifier.fillMaxSize().padding(padding).padding(top = 60.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxWidth(0.8f).background(Color(0xFFD986AC),  RoundedCornerShape(4.dp))
+                        .padding(16.dp) ) {
                     Column {
                         TextField(
                             value = playerName,
                             onValueChange = { playerName = it },
                             label = { Text("Name") },
-                            isError = !isJoining && playerValidation ,            //visa fel endast efter att användaren har tryckt på join lobby.
+                            isError = !isJoining && playerInvalid ,            //visa fel endast efter att användaren har tryckt på join lobby.
                             supportingText = {
-                                if (!isJoining && playerValidation) {             //visa fel om join lobby har tryckts men namnet är ogiltigt
+                                if (!isJoining && playerInvalid) {             //visa fel om join lobby har tryckts men namnet är ogiltigt
                                     Text(
                                         text = "Invalid name",
                                         color = MaterialTheme.colorScheme.error
                                     )
-                            }},
+                                }},
                             colors = TextFieldDefaults.textFieldColors(
                                 containerColor =  Color.Transparent,
                                 focusedIndicatorColor = Color.Black,
                                 unfocusedIndicatorColor = Color.Black),
-                                modifier = Modifier.fillMaxWidth().padding(8.dp)
+                            modifier = Modifier.fillMaxWidth().padding(8.dp)
                         )
                         Spacer(modifier = Modifier.height(1.dp))
                     }
                 }
-           }
+            }
+        }
     }
 }
 
 @Composable
-fun MyImage(){
+fun MyImage(){                                                                  //för battelship bilden
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.TopCenter
@@ -88,11 +108,16 @@ fun MyImage(){
 }
 
 
-fun handleJoinGame(navController: NavController, playerList: MutableList<Player>, playerName: String){
-    val player = Player(playerName, UUID.randomUUID().toString(),"online")
-    if(!playerName.isEmpty() && !(playerList.any { it.name == playerName }) && (playerName.matches(Regex("^[a-zA-Z]*")))) {
-        playerList.add(player)
-        navController.navigate("Lobby")
+fun handleJoinGame(navController: NavController,model: GameModel, playerName:String, sharedPreferences: SharedPreferences){
+    val newPlayer = Player(playerName, "Online")
+    model.db.collection("players").add(newPlayer).addOnSuccessListener {
+        documentRef-> val newPlayerId = documentRef.id
+        sharedPreferences.edit().putString("playerId", newPlayerId).apply()
+        model.localPlayerId.value = newPlayerId
+        navController.navigate("Lobby")}.addOnFailureListener { error ->
+        Log.e("Firebase", "Error adding document: $error")
     }
 }
+
+
 

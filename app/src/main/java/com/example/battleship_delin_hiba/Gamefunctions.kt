@@ -18,10 +18,10 @@ import androidx.navigation.NavController
 import androidx.compose.material.icons.filled.AccountCircle
 
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BattleScreen(navController: NavController){
+fun BattleScreen(navController: NavController, model: GameModel){
     val tiles = 10
     val boardData = Array(tiles) { Array(tiles) { 0 } }
     for(i in boardData.indices){
@@ -152,4 +152,11 @@ fun BattleScreen(navController: NavController){
             }
         }
     }
+}
+
+fun handleLeaveGame(navController: NavController, model: GameModel){
+    // tar bort spelet från databasen
+    // ändra spelare status till online
+    //model.db.collection("battles").document(it).delete()
+    navController.navigate("Main")
 }

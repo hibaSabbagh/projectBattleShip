@@ -20,7 +20,7 @@ enum class  Orientation{
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SetUpBoardScreen(navController: NavController, playerList: MutableList<Player>, battlesList: MutableList<Battle>) {
+fun SetUpBoardScreen(navController: NavController,model: GameModel) {
     val tiles = 10
     val boardDataChange = Array(tiles) { Array(tiles) { 0 } }
     for(i in boardDataChange.indices){
