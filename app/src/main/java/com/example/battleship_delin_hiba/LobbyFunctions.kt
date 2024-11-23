@@ -1,7 +1,6 @@
 package com.example.battleship_delin_hiba
 
-import android.R.attr.padding
-import android.R.attr.title
+
 import android.annotation.SuppressLint
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -12,8 +11,6 @@ import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.material3.*
-import androidx.compose.material3.AlertDialogDefaults.shape
-import androidx.compose.material3.CheckboxDefaults.colors
 import androidx.compose.ui.*
 import androidx.navigation.NavController
 import androidx.compose.ui.draw.clip
@@ -78,7 +75,6 @@ fun LobbyScreen(navController: NavController, model: GameModel) {
                 containerColor = Color(0xFFD3368E),
                 contentColor = Color.Black,
                 content = {Text("Leave Lobby")}
-
             )
        },
         content = { padding -> PlayerListLoop(padding, navController, model)},
@@ -96,14 +92,10 @@ fun LobbyScreen(navController: NavController, model: GameModel) {
                         Icon( painter = painterResource(id = R.drawable.directions_boat),
                             contentDescription = "boat")
                     }
-
                 }
-
             )
-
        }
     )
-
 }
 
 
@@ -115,7 +107,7 @@ fun PlayerListLoop( padding : PaddingValues, navController: NavController, model
 
     if (playerMapCpy.any{ it.value.name == model.localPlayerId.value}){
         Box(modifier = Modifier.fillMaxWidth()){Text(text = "${playerMapCpy[model.localPlayerId.value]?.name} ")}
-    }else {
+    } else {
         LazyColumn(modifier = Modifier.padding(padding))
         {
             items(playerMapCpy.entries.toList()) { player ->
@@ -170,7 +162,6 @@ fun challengePopup(navController: NavController, model: GameModel) : Boolean {
     battles.forEach { (gameId, battle) ->
         model.db.collection("battles").document(gameId).update("gamestate", "player1_turn")
         return false
-
     }
     return true
 }

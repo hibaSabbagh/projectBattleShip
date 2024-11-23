@@ -1,6 +1,5 @@
 package com.example.battleship_delin_hiba
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
