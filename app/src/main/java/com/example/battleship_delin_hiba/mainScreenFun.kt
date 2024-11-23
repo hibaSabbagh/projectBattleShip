@@ -107,17 +107,17 @@ fun MyImage(){                                                                  
     }
 }
 
-
 fun handleJoinGame(navController: NavController,model: GameModel, playerName:String, sharedPreferences: SharedPreferences){
     val newPlayer = Player(playerName, "Online")
     model.db.collection("players").add(newPlayer).addOnSuccessListener {
-        documentRef-> val newPlayerId = documentRef.id
+            documentRef-> val newPlayerId = documentRef.id
         sharedPreferences.edit().putString("playerId", newPlayerId).apply()
         model.localPlayerId.value = newPlayerId
         navController.navigate("Lobby")}.addOnFailureListener { error ->
         Log.e("Firebase", "Error adding document: $error")
     }
 }
+
 
 
 

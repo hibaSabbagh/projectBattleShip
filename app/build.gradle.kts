@@ -41,12 +41,13 @@ android {
 }
 
 dependencies {
-    implementation(libs.firebase.firestore)
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.runtime)
-    val navVersion = "2.8.3"
 
-    implementation(platform(libs.firebase.bom))
+    implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation(libs.firebase.firestore)
+    val navVersion = "2.8.3"
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

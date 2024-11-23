@@ -5,8 +5,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.*
 
 data class Player (
-    val name: String,
-    var status : String             //status kan vara online eller inbattle
+    val name: String = "",
+    var status : String = ""            //status kan vara online eller inbattle
 )
 
 data class Battle(   //lägg till game board med en list eller en mapp
