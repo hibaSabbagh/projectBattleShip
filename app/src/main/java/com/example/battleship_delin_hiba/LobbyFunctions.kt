@@ -28,21 +28,26 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.asStateFlow
 import kotlin.collections.get
 
-//hantera ifall andra spelaren har declined eller accepterat vår challenge och här ///hanteras logiken till speler om jag har blivit träffat och sånt
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LobbyScreen(navController: NavController, model: GameModel, sharedPreferences: SharedPreferences) {
     val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
     val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
+    var showChallengePopup by remember { mutableStateOf(false) }
+    var currentBattleId by remember { mutableStateOf("") }
 
     LaunchedEffect(battles) {
         battles.forEach { (gameId, battle) ->
-            if(( battle.player1Id == model.localPlayerId.value || battle.player2Id == model.localPlayerId.value) && battle.gamestate == "player1_turn"){
+            if ((battle.player1Id == model.localPlayerId.value || battle.player2Id == model.localPlayerId.value) && battle.gamestate == "player1_turn") {
                 navController.navigate("SetUpBoard")
+            } else if (battle.player2Id == model.localPlayerId.value && battle.gamestate == "Invite") {
+                showChallengePopup = true
+                currentBattleId = gameId
             }
         }
     }
+
     var playerName = "Unknown?"
     players[model.localPlayerId.value]?.let{
         playerName = it.name
@@ -60,10 +65,7 @@ fun LobbyScreen(navController: NavController, model: GameModel, sharedPreference
                         Text(text = "Online")
                         Spacer(modifier = Modifier.padding(5.dp))               //space mellan gröna cirkel och online
                         Box(
-                            modifier = Modifier
-                                .size(15.dp)
-                                .clip(CircleShape)
-                                .background(Color.Green)
+                            modifier = Modifier.size(15.dp).clip(CircleShape).background(Color.Green)
                         )
                     }
                 },
@@ -72,8 +74,7 @@ fun LobbyScreen(navController: NavController, model: GameModel, sharedPreference
                         onClick = { handleLeaveLobby(navController, model, sharedPreferences) }
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "back")
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "back")
                     }
                 }
             )
@@ -104,14 +105,20 @@ fun LobbyScreen(navController: NavController, model: GameModel, sharedPreference
                         Icon( painter = painterResource(id = R.drawable.directions_boat),
                             contentDescription = "boat")
                     }
-
                 }
-
             )
-
        }
     )
+    if (showChallengePopup) {
+        ChallengePopup(
+            navController = navController,
+            model = model,
+            battleId = currentBattleId,
+            onDismiss = { showChallengePopup = false }
+        )
+    }
 }
+
 
 
 
@@ -121,8 +128,7 @@ fun PlayerListLoop( padding : PaddingValues, navController: NavController, model
     val playerMapCpy by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
     val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
 
-    LazyColumn( modifier = Modifier.fillMaxSize().padding(padding))
-    {
+    LazyColumn( modifier = Modifier.fillMaxSize().padding(padding)) {
         items(playerMapCpy.entries.toList()) { player ->
             if (player.key == model.localPlayerId.value) {
                 ListItem(
@@ -146,10 +152,8 @@ fun PlayerListLoop( padding : PaddingValues, navController: NavController, model
                         var hasGame = false /// might change to mutableStateOf(false)
                         battles.forEach { (gameId, battle) ->
                             if (battle.player1Id == model.localPlayerId.value && battle.gamestate == "Invite") {
-                                Text("Waiting for accept ... ")
                                 hasGame = true
-                            } else if (battle.player2Id == model.localPlayerId.value && battle.gamestate == "Invite") {
-                                challengePopup(navController, model)
+                                Text("Waiting for accept...")
                             }
                         }
                         if (!hasGame) {
@@ -161,16 +165,11 @@ fun PlayerListLoop( padding : PaddingValues, navController: NavController, model
                                             player1Id = model.localPlayerId.value!!,
                                             player2Id = player.key
                                         )
-                                    ).addOnSuccessListener { documentRef ->
-                                        hasGame = true
-                                    }
-                                },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(
-                                        0xFFD3368E
                                     )
-                                ),
-                            ) { Text(text = "Challenge") }
+                                },
+                                colors = ButtonDefaults.buttonColors( containerColor = Color(0xFFD3368E)),
+                            ) {
+                                Text(text = "Challenge") }
                         }
                     }
                 )
@@ -181,8 +180,37 @@ fun PlayerListLoop( padding : PaddingValues, navController: NavController, model
 
 
 
-//@Composable
-//fun  ChallengeButton(player: Player){}
+@Composable
+fun  ChallengePopup(navController: NavController, model: GameModel, battleId: String, onDismiss: ()-> Unit){
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        title = { Text("Challenge Received") },
+        text = { Text("Do you accept the challenge?") },
+        confirmButton = {
+            Button(
+                onClick = {
+                    model.db.collection("battles").document(battleId).update("gamestate", "player1_turn").addOnSuccessListener {
+                        navController.navigate("SetUpBoard")
+                    }
+                    onDismiss()
+                }
+            ) {
+                Text("Accept")
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = {
+                    model.db.collection("battles").document(battleId).delete()
+                    onDismiss()
+                }
+            ) {
+                Text("Decline")
+            }
+        }
+    )
+}
+
 
 fun handleLeaveLobby(navController: NavController, model: GameModel, sharedPreferences: SharedPreferences){
 
@@ -193,19 +221,17 @@ fun handleLeaveLobby(navController: NavController, model: GameModel, sharedPrefe
             navController.navigate("Main") {
                 popUpTo("Lobby") { inclusive = true }
             }
-        }
+        }            // removes player from database
     }
-
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun challengePopup(navController: NavController, model: GameModel) : Boolean {
-
-    val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
-    battles.forEach { (gameId, battle) ->
-        model.db.collection("battles").document(gameId).update("gamestate", "player1_turn")
-        return false
-    }
-    return true
-}
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun challengePopup(navController: NavController, model: GameModel) : Boolean {
+//    val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
+//    battles.forEach { (gameId, battle) ->
+//        model.db.collection("battles").document(gameId).update("gamestate", "player1_turn")
+//        return false
+//    }
+//    return true
+//}
