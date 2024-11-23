@@ -1,6 +1,8 @@
 package com.example.battleship_delin_hiba
 
+import android.content.Context
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.*
 
@@ -22,10 +24,14 @@ fun BattleNav(){
     val navController = rememberNavController()
     val model = GameModel()
     model.initGame()
+    val sharedPreferences = LocalContext.current.getSharedPreferences("BattelShipPrefs", Context.MODE_PRIVATE)
 
     NavHost(navController = navController, startDestination = "Main"){   //lägger in model i alla
-        composable("Main"){ MainScreen(navController,model) }
-        composable("Lobby"){ LobbyScreen(navController,model) }
+        composable("Main"){ MainScreen(navController,model, sharedPreferences) }
+        composable("Lobby"){ LobbyScreen(
+            navController,
+            model,
+            sharedPreferences) }
         composable("SetUpBoard"){ SetUpBoardScreen(navController,model) }
         composable("Battle"){ backStackEntry -> val battleID = backStackEntry.arguments?.getString("battleId")
             BattleScreen(navController, model) }

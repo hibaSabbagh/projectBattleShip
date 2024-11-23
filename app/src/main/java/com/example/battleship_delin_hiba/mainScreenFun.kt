@@ -25,8 +25,7 @@ import java.util.UUID
 @SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(navController: NavController, model: GameModel) {  //för firebase
-    val sharedPreferences = LocalContext.current.getSharedPreferences("BattelShipPrefs", Context.MODE_PRIVATE)
+fun MainScreen(navController: NavController, model: GameModel, sharedPreferences: SharedPreferences) {  //för firebase
     val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
 
 

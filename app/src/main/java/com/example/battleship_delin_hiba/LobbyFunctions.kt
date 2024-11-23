@@ -2,6 +2,8 @@ package com.example.battleship_delin_hiba
 
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
@@ -12,19 +14,22 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.material3.*
 import androidx.compose.ui.*
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.asStateFlow
+import kotlin.collections.get
 
 //hantera ifall andra spelaren har declined eller accepterat vår challenge och här ///hanteras logiken till speler om jag har blivit träffat och sånt
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LobbyScreen(navController: NavController, model: GameModel) {
+fun LobbyScreen(navController: NavController, model: GameModel, sharedPreferences: SharedPreferences) {
     val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
     val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
 
@@ -52,13 +57,16 @@ fun LobbyScreen(navController: NavController, model: GameModel) {
                         Text(text = "Online")
                         Spacer(modifier = Modifier.padding(5.dp))               //space mellan gröna cirkel och online
                         Box(
-                            modifier = Modifier.size(15.dp).clip(CircleShape).background(Color.Green)
+                            modifier = Modifier
+                                .size(15.dp)
+                                .clip(CircleShape)
+                                .background(Color.Green)
                         )
                     }
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = {navController.navigate("Main") }
+                        onClick = { handleLeaveLobby(navController, model, sharedPreferences) }
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -69,7 +77,7 @@ fun LobbyScreen(navController: NavController, model: GameModel) {
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { handleLeaveLobby(navController, model) },   // we can change this when when we connect to the server
+                onClick = { handleLeaveLobby(navController, model, sharedPreferences)},   // we can change this when when we connect to the server
                 modifier = Modifier.padding(16.dp),
                 shape = CircleShape,
                 containerColor = Color(0xFFD3368E),
@@ -100,8 +108,9 @@ fun LobbyScreen(navController: NavController, model: GameModel) {
 
 
 
+
 @Composable
-fun PlayerListLoop( padding : PaddingValues, navController: NavController, model : GameModel){
+fun PlayerListLoop( padding : PaddingValues, navController: NavController, model : GameModel) {
     val playerMapCpy by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
     val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
 
@@ -111,6 +120,19 @@ fun PlayerListLoop( padding : PaddingValues, navController: NavController, model
         LazyColumn(modifier = Modifier.padding(padding))
         {
             items(playerMapCpy.entries.toList()) { player ->
+    LazyColumn( modifier = Modifier.fillMaxSize().padding(padding))
+    {
+        items(playerMapCpy.entries.toList()) { player ->
+            if (player.key == model.localPlayerId.value) {
+                ListItem(
+                    leadingContent = {
+                        Icon(
+                            imageVector = Icons.Filled.AccountCircle,
+                            contentDescription = "person"
+                        )
+                    },
+                    headlineContent = { Text(text = " ${playerMapCpy[model.localPlayerId.value]?.name} (you)") })
+            } else {
                 ListItem(
                     leadingContent = {
                         Icon(
@@ -121,23 +143,33 @@ fun PlayerListLoop( padding : PaddingValues, navController: NavController, model
                     headlineContent = { Text(text = player.value.name) },
                     trailingContent = {
                         var hasGame = false /// might change to mutableStateOf(false)
-                        battles.forEach{(gameId, battle) ->
-                            if(battle.player1Id == model.localPlayerId.value && battle.gamestate == "Invite"){
+                        battles.forEach { (gameId, battle) ->
+                            if (battle.player1Id == model.localPlayerId.value && battle.gamestate == "Invite") {
                                 Text("Waiting for accept ... ")
                                 hasGame = true
-                            } else if ( battle.player2Id == model.localPlayerId.value && battle.gamestate == "Invite"){
-                                hasGame = challengePopup(navController, model)
+                            } else if (battle.player2Id == model.localPlayerId.value && battle.gamestate == "Invite") {
+                                challengePopup(navController, model)
                             }
                         }
                         if (!hasGame) {
                             Button(
-                                onClick = { model.db.collection("battles").
-                                    add(Battle(gamestate = "Invite", player1Id = model.localPlayerId.value!!, player2Id = player.key)).addOnSuccessListener {
-                                    documentRef -> hasGame = true
+                                onClick = {
+                                    model.db.collection("battles").add(
+                                        Battle(
+                                            gamestate = "Invite",
+                                            player1Id = model.localPlayerId.value!!,
+                                            player2Id = player.key
+                                        )
+                                    ).addOnSuccessListener { documentRef ->
+                                        hasGame = true
                                     }
                                 },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD3368E)),
-                            ) {Text(text = "Challenge") }
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(
+                                        0xFFD3368E
+                                    )
+                                ),
+                            ) { Text(text = "Challenge") }
                         }
                     }
                 )
@@ -151,17 +183,29 @@ fun PlayerListLoop( padding : PaddingValues, navController: NavController, model
 //@Composable
 //fun  ChallengeButton(player: Player){}
 
-fun handleLeaveLobby(navController: NavController, model: GameModel){
-    model.localPlayerId.value?.let { model.db.collection("players").document(it).delete() }
-    navController.navigate("Main")
+fun handleLeaveLobby(navController: NavController, model: GameModel, sharedPreferences: SharedPreferences){
+
+    model.localPlayerId.value?.let {
+        model.db.collection("players").document(it).delete().addOnSuccessListener {
+            model.localPlayerId.value = null
+            sharedPreferences.edit().remove("playerId").apply()
+            navController.navigate("Main") {
+                popUpTo("Lobby") { inclusive = true }
+            }
+        }
+    }
+
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun challengePopup(navController: NavController, model: GameModel) : Boolean {
+
     val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
     battles.forEach { (gameId, battle) ->
         model.db.collection("battles").document(gameId).update("gamestate", "player1_turn")
         return false
+
     }
     return true
 }
