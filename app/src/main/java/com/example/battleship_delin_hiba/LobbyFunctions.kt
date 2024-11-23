@@ -205,7 +205,7 @@ fun challengePopup(navController: NavController, model: GameModel) : Boolean {
     val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
     battles.forEach { (gameId, battle) ->
         model.db.collection("battles").document(gameId).update("gamestate", "player1_turn")
-
+        return false
     }
     return true
 }
