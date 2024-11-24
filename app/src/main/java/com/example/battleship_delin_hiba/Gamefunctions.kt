@@ -17,7 +17,7 @@ import androidx.navigation.NavController
 import androidx.compose.material.icons.filled.AccountCircle
 
 
-
+                                                                     // Fjärde skärm som visas
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BattleScreen(navController: NavController, model: GameModel){
@@ -34,9 +34,9 @@ fun BattleScreen(navController: NavController, model: GameModel){
                 title = {
 
                 },
-                navigationIcon = {                                                        //för tillbaka knappen
+                navigationIcon = {
                     IconButton(
-                        onClick = { navController.navigate("Lobby") }
+                        onClick = { navController.navigate("Lobby") }       //kanske till main
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -48,7 +48,7 @@ fun BattleScreen(navController: NavController, model: GameModel){
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { navController.navigate("Lobby") },
+                onClick = { navController.navigate("Lobby") },            //kanske till main
                 modifier = Modifier.padding(16.dp),
                 shape = CircleShape,
                 containerColor = Color(0xFFD3368E),
@@ -153,9 +153,3 @@ fun BattleScreen(navController: NavController, model: GameModel){
     }
 }
 
-fun handleLeaveGame(navController: NavController, model: GameModel){
-    // tar bort spelet från databasen
-    // ändra spelare status till online
-    //model.db.collection("battles").document(it).delete()
-    navController.navigate("Main")
-}

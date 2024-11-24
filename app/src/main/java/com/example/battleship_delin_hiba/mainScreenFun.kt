@@ -22,7 +22,7 @@ import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.UUID
 
-@SuppressLint("SuspiciousIndentation")
+@SuppressLint("SuspiciousIndentation")                                   //  Första skärm som visas
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(navController: NavController, model: GameModel, sharedPreferences: SharedPreferences) {  //för firebase
@@ -92,14 +92,14 @@ fun MainScreen(navController: NavController, model: GameModel, sharedPreferences
 }
 
 @Composable
-fun MyImage(){                                                                  //för battelship bilden
+fun MyImage(){            //för battelship bilden, beskriver bilden
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.TopCenter
     ) {
         Image(
             painter = painterResource(id = R.drawable.shippic),
-            contentDescription = "main screen picture of the game",             //beskriver bilden
+            contentDescription = "main screen picture of the game",
             modifier = Modifier.padding(top = 100.dp).size(350.dp),
             contentScale = ContentScale.Fit
         )
@@ -116,6 +116,9 @@ fun handleJoinGame(navController: NavController,model: GameModel, playerName:Str
         Log.e("Firebase", "Error adding document: $error")
     }
 }
+           //skapa en ny spelare med namn och status online
+           //lägger till spelaren i databasen och sparar spelarens id i shared preferences
+           //och sen navigerar till LobbyScreen
 
 
 

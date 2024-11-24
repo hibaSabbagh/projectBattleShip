@@ -6,7 +6,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class GameModel: ViewModel(){
+class GameModel: ViewModel(){                              //hantera all data och koppla appen till Firebase Firestore
     val db = Firebase.firestore
     var localPlayerId = mutableStateOf<String?>(null)
     val playerMap = MutableStateFlow<Map<String, Player>>(emptyMap())

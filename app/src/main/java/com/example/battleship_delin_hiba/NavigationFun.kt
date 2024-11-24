@@ -6,21 +6,21 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.*
 
-data class Player (
+data class Player (                         //data klass som representerar en spelare och namn en tom sträng som default
     val name: String = "",
-    var status : String = ""            //status kan vara online eller inbattle
+    var status : String = ""
 )
 
-data class Battle(   //lägg till game board med en list eller en mapp
+data class Battle(                            //data klass som representerar en battle och defaultvärden
     val player1Id: String = "",
     val player2Id: String = "",
-    val gamestate: String = "Invite",  //kan bli enum  "player1_turn", "player2_turn", "player1_win", "player2_win", "draw"
+    val gamestate: String = "Invite",
     var gameBoard: List<Int> = List(100) {0}
 )
 
 
 @Composable
-fun BattleNav(){
+fun BattleNav(){                                                           //hanterar navigationen mellan olika skärmar och skickar meddelanden mellan de
     val navController = rememberNavController()
     val model = GameModel()
     model.initGame()
