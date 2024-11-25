@@ -1,5 +1,6 @@
 package com.example.battleship_delin_hiba
 
+import android.content.SharedPreferences
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
@@ -36,7 +37,7 @@ fun BattleScreen(navController: NavController, model: GameModel){
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = { navController.navigate("Lobby") }       //kanske till main
+                        onClick = { handleLeaveGame(navController, model) }       //kanske till main
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -48,7 +49,7 @@ fun BattleScreen(navController: NavController, model: GameModel){
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { navController.navigate("Lobby") },            //kanske till main
+                onClick = { handleLeaveGame(navController, model) },            //kanske till main
                 modifier = Modifier.padding(16.dp),
                 shape = CircleShape,
                 containerColor = Color(0xFFD3368E),
@@ -153,3 +154,14 @@ fun BattleScreen(navController: NavController, model: GameModel){
     }
 }
 
+fun handleLeaveGame(navController: NavController, model: GameModel){
+    model.localBattleId.value?.let {
+        model.db.collection("battles").document(it).delete().addOnSuccessListener {
+            model.localPlayerId.value = null
+            navController.navigate("Lobby") {
+                popUpTo("Battle") { inclusive = true }
+                popUpTo("SetUpBoard") { inclusive = true }
+            }
+        }
+    }
+}

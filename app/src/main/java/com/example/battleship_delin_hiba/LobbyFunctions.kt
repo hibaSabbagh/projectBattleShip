@@ -196,6 +196,7 @@ fun  ChallengePopup(navController: NavController, model: GameModel, battleId: St
             Button(
                 onClick = {
                     model.db.collection("battles").document(battleId).update("gamestate", "player1_turn").addOnSuccessListener {
+                        model.localBattleId.value = battleId
                         navController.navigate("SetUpBoard") }
                     onDismiss()
                 }

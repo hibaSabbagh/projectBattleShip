@@ -11,6 +11,8 @@ class GameModel: ViewModel(){                              //hantera all data oc
     var localPlayerId = mutableStateOf<String?>(null)
     val playerMap = MutableStateFlow<Map<String, Player>>(emptyMap())
     val battleMap = MutableStateFlow<Map<String, Battle>>(emptyMap())
+    var localBattleId = mutableStateOf<String?>(null)
+    var localBoardId = mutableStateOf<String?>(null)
 
     fun initGame(){
         db.collection("players").addSnapshotListener{ value, error ->
