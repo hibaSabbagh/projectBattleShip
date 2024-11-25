@@ -1,6 +1,7 @@
 package com.example.battleship_delin_hiba
 
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
@@ -155,13 +156,23 @@ fun BattleScreen(navController: NavController, model: GameModel){
 }
 
 fun handleLeaveGame(navController: NavController, model: GameModel){
-    model.localBattleId.value?.let {
-        model.db.collection("battles").document(it).delete().addOnSuccessListener {
+   val currentBattleId = model.localBattleId.value!!
+    if( currentBattleId != null) {
+        model.db.collection("battles").document(currentBattleId).delete().addOnSuccessListener {
             model.localBattleId.value = null
             model.localBoardId.value = null
             navController.navigate("Lobby") {
                 popUpTo("SetUpBoard") { inclusive = true }
             }
+        }.addOnFailureListener {
+            Log.e("BattleScreen", "Failed to delete battle", it)
+        }
+    }else {
+        Log.w("BattleScreen", "Current battle ID is null")
+        model.localBattleId.value = null
+        model.localBoardId.value = null
+        navController.navigate("Lobby") {
+            popUpTo("SetUpBoard") { inclusive = true }
         }
     }
 }
