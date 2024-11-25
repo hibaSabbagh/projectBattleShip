@@ -157,7 +157,6 @@ fun BattleScreen(navController: NavController, model: GameModel){
 fun handleLeaveGame(navController: NavController, model: GameModel){
     model.localBattleId.value?.let {
         model.db.collection("battles").document(it).delete().addOnSuccessListener {
-            model.localPlayerId.value = null
             navController.navigate("Lobby") {
                 popUpTo("SetUpBoard") { inclusive = true }
             }
