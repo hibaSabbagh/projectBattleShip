@@ -41,6 +41,7 @@ fun LobbyScreen(navController: NavController, model: GameModel, sharedPreference
 //om den lokala spelare är en av spelarna och deras tur så går man till setUppBoard
 //annars om spelare2 är aktiv så visas popup
     LaunchedEffect(battles) {
+        if(model.localBattleId == null) return@LaunchedEffect
         battles.forEach { (gameId, battle) ->
             if ((battle.player1Id == model.localPlayerId.value || battle.player2Id == model.localPlayerId.value) && battle.gamestate == "player1_turn") {
                 navController.navigate("SetUpBoard")
