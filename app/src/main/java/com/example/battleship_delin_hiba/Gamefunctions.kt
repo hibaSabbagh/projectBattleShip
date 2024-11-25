@@ -162,17 +162,17 @@ fun handleLeaveGame(navController: NavController, model: GameModel){
             model.localBattleId.value = null
             model.localBoardId.value = null
             navController.navigate("Lobby") {
-                popUpTo("SetUpBoard") { inclusive = true }
+                popUpTo("Battle") { inclusive = true }
             }
         }.addOnFailureListener {
             Log.e("BattleScreen", "Failed to delete battle", it)
         }
     }else {
         Log.w("BattleScreen", "Current battle ID is null")
-        model.localBattleId.value = null
-        model.localBoardId.value = null
+//        model.localBattleId.value = null
+//        model.localBoardId.value = null
         navController.navigate("Lobby") {
-            popUpTo("SetUpBoard") { inclusive = true }
+            popUpTo("Battle") { inclusive = true }
         }
     }
 }
