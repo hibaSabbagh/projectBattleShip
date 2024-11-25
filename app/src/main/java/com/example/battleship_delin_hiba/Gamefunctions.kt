@@ -156,7 +156,7 @@ fun BattleScreen(navController: NavController, model: GameModel){
 }
 
 fun handleLeaveGame(navController: NavController, model: GameModel){
-   val currentBattleId = model.localBattleId.value!!
+   val currentBattleId = model.localBattleId.value
     if( currentBattleId != null) {
         model.db.collection("battles").document(currentBattleId).delete().addOnSuccessListener {
             model.localBattleId.value = null
