@@ -159,7 +159,6 @@ fun handleLeaveGame(navController: NavController, model: GameModel){
         model.db.collection("battles").document(it).delete().addOnSuccessListener {
             model.localPlayerId.value = null
             navController.navigate("Lobby") {
-                popUpTo("Battle") { inclusive = true }
                 popUpTo("SetUpBoard") { inclusive = true }
             }
         }
