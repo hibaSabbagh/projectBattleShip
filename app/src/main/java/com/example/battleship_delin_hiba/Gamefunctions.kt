@@ -38,7 +38,7 @@ fun BattleScreen(navController: NavController, model: GameModel){
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = { handleLeaveGame(navController, model) }       //kanske till main
+                        onClick = { /*handleLeaveGame(navController, model)*/ navController.navigate("Lobby") }       //kanske till main
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -50,7 +50,7 @@ fun BattleScreen(navController: NavController, model: GameModel){
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { handleLeaveGame(navController, model) },            //kanske till main
+                onClick = { /*handleLeaveGame(navController, model)*/ navController.navigate("Lobby") },            //kanske till main
                 modifier = Modifier.padding(16.dp),
                 shape = CircleShape,
                 containerColor = Color(0xFFD3368E),
@@ -155,10 +155,9 @@ fun BattleScreen(navController: NavController, model: GameModel){
     }
 }
 
-fun handleLeaveGame(navController: NavController, model: GameModel){
-   val currentBattleId = model.localBattleId.value
-    if( currentBattleId != null) {
-        model.db.collection("battles").document(currentBattleId).delete().addOnSuccessListener {
+/*fun handleLeaveGame(navController: NavController, model: GameModel){
+    if( model.localBattleId.value != null && model.localBattleId != null) {
+        model.db.collection("battles").document(model.localBattleId.value!!).delete().addOnSuccessListener {
             model.localBattleId.value = null
             model.localBoardId.value = null
             navController.navigate("Lobby") {
@@ -175,4 +174,4 @@ fun handleLeaveGame(navController: NavController, model: GameModel){
             popUpTo("Battle") { inclusive = true }
         }
     }
-}
+}*/

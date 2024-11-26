@@ -35,25 +35,25 @@ fun LobbyScreen(navController: NavController, model: GameModel, sharedPreference
     val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()        //ett sätt att samla info om spelare & aktiva matcher och göra tillgänglig till UI
     val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
     var showChallengePopup by remember { mutableStateOf(false) }                //för popup om man har fått en challenge, false då man har ej fått en
-    var currentBattleId by remember { mutableStateOf("") }
+    //var currentBattleId by remember { mutableStateOf("") }
 
 
 //om den lokala spelare är en av spelarna och deras tur så går man till setUppBoard
 //annars om spelare2 är aktiv så visas popup
-    LaunchedEffect(battles) {
-        if(model.localBattleId == null) return@LaunchedEffect
-        battles.forEach { (gameId, battle) ->
-            if ((battle.player1Id == model.localPlayerId.value || battle.player2Id == model.localPlayerId.value) && battle.gamestate == "player1_turn") {
-                navController.navigate("SetUpBoard")
-            } else if (battle.player2Id == model.localPlayerId.value && battle.gamestate == "Invite") {
-                showChallengePopup = true
-                currentBattleId = gameId
-            }
-        }
-    }
+//    LaunchedEffect(battles) {
+//        battles.forEach { (gameId, battle) ->
+//            if ((battle.player1Id == model.localPlayerId.value || battle.player2Id == model.localPlayerId.value) && battle.gamestate == "player1_turn") {
+//                navController.navigate("SetUpBoard")
+//            } else if (battle.player2Id == model.localPlayerId.value && battle.gamestate == "Invite") {
+//                showChallengePopup = true
+//                model.localBattleId.value = gameId
+//            }
+//        }
+//    }
 
 //om inget namn tilldelas då unknown
 //även kollar om spelare finns med i lista då tilldelas spelaren det namnet som matchar sin id
+
     var playerName = "Unknown?"
     players[model.localPlayerId.value]?.let{
         playerName = it.name
@@ -111,13 +111,12 @@ fun LobbyScreen(navController: NavController, model: GameModel, sharedPreference
             )
        }
     )
-    if (showChallengePopup) {                                             //om man accepterar challenge så visas popup
-        ChallengePopup(
-            navController = navController,
-            model = model,
-            battleId = currentBattleId,
-            onDismiss = { showChallengePopup = false }
-        )
+    if (showChallengePopup) {   navController.navigate("Battle")                                          //om man accepterar challenge så visas popup
+//        ChallengePopup(
+//            navController = navController,
+//            model = model,
+//            onDismiss = { showChallengePopup = false }
+//        )
     }
 }
 
@@ -187,31 +186,31 @@ fun PlayerListLoop( padding : PaddingValues, navController: NavController, model
 
 
 
-@Composable
-fun  ChallengePopup(navController: NavController, model: GameModel, battleId: String, onDismiss: ()-> Unit){
-    AlertDialog(
-        onDismissRequest = { onDismiss() },
-        title = { Text("Challenge Received") },
-        text = { Text("Do you accept the challenge?") },
-        confirmButton = {
-            Button(
-                onClick = {
-                    model.db.collection("battles").document(battleId).update("gamestate", "player1_turn").addOnSuccessListener {
-                        model.localBattleId.value = battleId
-                        navController.navigate("SetUpBoard") }
-                    onDismiss()
-                }
-            ) { Text("Accept") }
-        },
-        dismissButton = {
-            Button(
-                onClick = {
-                    model.db.collection("battles").document(battleId).delete()
-                    onDismiss() }
-            ) { Text("Decline") }
-        }
-    )
-}
+//@Composable
+//fun  ChallengePopup(navController: NavController, model: GameModel, onDismiss: ()-> Unit){
+//    AlertDialog(
+//        onDismissRequest = { onDismiss() },
+//        title = { Text("Challenge Received") },
+//        text = { Text("Do you accept the challenge?") },
+//        confirmButton = {
+//            Button(
+//                onClick = {
+//                    model.db.collection("battles").document(model.localBattleId.value!!).update("gamestate", "player1_turn").addOnSuccessListener {
+//                        //model.localBattleId.value = battleId
+//                        navController.navigate("SetUpBoard") }
+//                    onDismiss()
+//                }
+//            ) { Text("Accept") }
+//        },
+//        dismissButton = {
+//            Button(
+//                onClick = {
+//                    model.db.collection("battles").document(model.localBattleId.value!!).delete()
+//                    onDismiss() }
+//            ) { Text("Decline") }
+//        }
+//    )
+//}
     //här hanteras popup, om man accepterar så uppdateras matchen i databasen och player1 tur, sen onDismiss tar bort popup
     // om man inte accepterar så tas bort matchen från databasen sen onDismiss tar bort popup
 

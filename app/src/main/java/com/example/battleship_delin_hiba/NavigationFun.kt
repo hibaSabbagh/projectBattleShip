@@ -24,7 +24,7 @@ fun BattleNav(){                                                           //han
     val navController = rememberNavController()
     val model = GameModel()
     model.initGame()
-    val sharedPreferences = LocalContext.current.getSharedPreferences("BattelShipPrefs", Context.MODE_PRIVATE)
+    val sharedPreferences = LocalContext.current.getSharedPreferences("BattleShipPrefs", Context.MODE_PRIVATE)
 
     NavHost(navController = navController, startDestination = "Main"){   //lägger in model i alla
         composable("Main"){ MainScreen(navController,model, sharedPreferences) }
@@ -33,7 +33,7 @@ fun BattleNav(){                                                           //han
             model,
             sharedPreferences) }
         composable("SetUpBoard"){ SetUpBoardScreen(navController,model) }
-        composable("Battle"){ backStackEntry -> val battleID = backStackEntry.arguments?.getString("battleId")
+        composable("Battle"){ /*backStackEntry -> val battleID = backStackEntry.arguments?.getString("battleId")*/
             BattleScreen(navController, model) }
     }
 }
