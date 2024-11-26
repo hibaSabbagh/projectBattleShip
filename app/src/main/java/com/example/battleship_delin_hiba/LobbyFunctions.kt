@@ -35,7 +35,7 @@ fun LobbyScreen(navController: NavController, model: GameModel, sharedPreference
     val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()        //ett sätt att samla info om spelare & aktiva matcher och göra tillgänglig till UI
     val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
     var showChallengePopup by remember { mutableStateOf(false) }                //för popup om man har fått en challenge, false då man har ej fått en
-    var currentBattleId by remember { mutableStateOf("") }
+    var currentBattleId by remember { mutableStateOf("Unknown") }
 
 
 //om den lokala spelare är en av spelarna och deras tur så går man till setUppBoard
