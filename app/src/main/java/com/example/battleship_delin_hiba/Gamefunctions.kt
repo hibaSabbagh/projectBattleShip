@@ -38,7 +38,7 @@ fun BattleScreen(navController: NavController, model: GameModel){
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = { /*handleLeaveGame(navController, model)*/ navController.navigate("Lobby") }       //kanske till main
+                        onClick = { navController.navigate("Lobby") }       //kanske till main
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -50,7 +50,7 @@ fun BattleScreen(navController: NavController, model: GameModel){
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { /*handleLeaveGame(navController, model)*/ navController.navigate("Lobby") },            //kanske till main
+                onClick = { navController.navigate("Lobby") },            //kanske till main
                 modifier = Modifier.padding(16.dp),
                 shape = CircleShape,
                 containerColor = Color(0xFFD3368E),
@@ -155,11 +155,9 @@ fun BattleScreen(navController: NavController, model: GameModel){
     }
 }
 
-/*fun handleLeaveGame(navController: NavController, model: GameModel){
+fun handleLeaveGame(navController: NavController, model: GameModel){
     if( model.localBattleId.value != null && model.localBattleId != null) {
         model.db.collection("battles").document(model.localBattleId.value!!).delete().addOnSuccessListener {
-            model.localBattleId.value = null
-            model.localBoardId.value = null
             navController.navigate("Lobby") {
                 popUpTo("Battle") { inclusive = true }
             }
@@ -168,10 +166,8 @@ fun BattleScreen(navController: NavController, model: GameModel){
         }
     }else {
         Log.w("BattleScreen", "Current battle ID is null")
-//        model.localBattleId.value = null
-//        model.localBoardId.value = null
         navController.navigate("Lobby") {
             popUpTo("Battle") { inclusive = true }
         }
     }
-}*/
+}
