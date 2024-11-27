@@ -21,9 +21,35 @@ enum class  Orientation{
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SetUpBoardScreen(navController: NavController,model: GameModel) {
-    //var currentBattleId by model.localBattleId
+    val firebaseRepository = FirebaseRepository()                          //****
     val tiles = 10
     val boardDataChange = Array(tiles) { Array(tiles) { 0 } }
+
+    fun saveBoard() {
+        firebaseRepository.saveBoardToFirestore(boardDataChange, "game123") { success ->
+            if (success) {
+                println("Board saved successfully!")                                    //*** exempel kan ändras
+            } else {
+                println("Failed to save board.")                                       //*** exempel kan ändras
+            }
+        }
+    }
+
+    fun loadBoard() {                                                                    // Funktion för att ladda brädet
+        firebaseRepository.loadBoardFromFirestore("game123") { loadedBoard ->
+            if (loadedBoard != null) {
+                for (i in loadedBoard.indices) {
+                    for (j in loadedBoard[i].indices) {
+                        boardDataChange[i][j] = loadedBoard[i][j]                        // Uppdatera brädet
+                    }
+                }
+                println("Board loaded successfully!")
+            } else {
+                println("Failed to load board.")
+            }
+        }
+    }
+
 
     boardDataChange[0][0] = 1
 
@@ -43,15 +69,6 @@ fun SetUpBoardScreen(navController: NavController,model: GameModel) {
 
     boardDataChange[0][0] = 1
     boardDataChange[0][0] = 1
-
-    class Ship(
-        val size : Int,
-        x: Int,
-        y: Int,
-        orientation : Orientation = Orientation.VERTICAL
-    ){
-
-    }
 
 
 
@@ -101,14 +118,34 @@ fun SetUpBoardScreen(navController: NavController,model: GameModel) {
             )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { navController.navigate("Battle") },
-                modifier = Modifier.padding(16.dp),
-                shape = CircleShape,
-                containerColor = Color(0xFFD3368E),
-                contentColor = Color.Black,
-                content = { Text("Start Game") }
-            )
+            Column {
+                ExtendedFloatingActionButton(
+                    onClick = { navController.navigate("Battle") },
+                    modifier = Modifier.padding(16.dp),
+                    shape = CircleShape,
+                    containerColor = Color(0xFFD3368E),
+                    contentColor = Color.Black,
+                    content = { Text("Start Game") }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                ExtendedFloatingActionButton(
+                    onClick = { saveBoard() },                  //anropar "spara funktionen"
+                    modifier = Modifier.padding(16.dp),
+                    shape = CircleShape,
+                    containerColor = Color(0xFFD3368E),
+                    contentColor = Color.Black,
+                    content = { Text("Save Board") }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                ExtendedFloatingActionButton(
+                    onClick = { loadBoard() },                 //anropar "ladda funktionen"
+                    modifier = Modifier.padding(16.dp),
+                    shape = CircleShape,
+                    containerColor = Color(0xFFD3368E),
+                    contentColor = Color.Black,
+                    content = { Text("Load Board") }
+                )
+            }
         },
         content = { padding ->
             Column (modifier = Modifier.padding(padding).fillMaxSize(),
@@ -122,7 +159,7 @@ fun SetUpBoardScreen(navController: NavController,model: GameModel) {
                     itemsIndexed(boardDataChange.flatten()){ index, tileValue ->
                         val row = index / tiles
                         val column = index % tiles
-                        Box(Modifier.fillMaxSize().background(
+                        Box( Modifier.fillMaxSize().background(
                             color = if (boardDataChange[row][column] == 0) {
                                         Color.White
                                 } else {

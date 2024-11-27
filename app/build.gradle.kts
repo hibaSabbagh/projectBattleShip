@@ -45,6 +45,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.6.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.database.ktx)
     val navVersion = "2.8.3"
     implementation("com.google.android.gms:play-services-location:21.0.1")
 

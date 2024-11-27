@@ -1,9 +1,7 @@
 package com.example.battleship_delin_hiba
 
-import android.R.attr.padding
-import android.R.attr.title
+
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.SharedPreferences
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -14,14 +12,11 @@ import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.material3.*
-import androidx.compose.material3.AlertDialogDefaults.shape
-import androidx.compose.material3.CheckboxDefaults.colors
 import androidx.compose.ui.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
