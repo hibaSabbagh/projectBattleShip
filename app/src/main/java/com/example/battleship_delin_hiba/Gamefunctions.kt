@@ -17,12 +17,35 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 
-                                                                     // Fjärde skärm som visas
+// Fjärde skärm som visas
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BattleScreen(navController: NavController, model: GameModel){
+
+    var currentBattleId by model.localBattleId
+    LaunchedEffect(currentBattleId){
+        if(currentBattleId == null){
+            navController.navigate("Lobby")
+        }else {
+            val battle = model.battleMap.value[currentBattleId]
+            if(battle?.gamestate == "game over"){
+                model.db.collection("battles").document(currentBattleId!!).delete().addOnSuccessListener {
+                    currentBattleId = null
+                    navController.navigate("Lobby") {
+                        popUpTo("Battle") { inclusive = true }
+                    }
+
+                }
+            }
+        }
+    }
+
+
     val tiles = 10
     val boardData = Array(tiles) { Array(tiles) { 0 } }
     for(i in boardData.indices){
@@ -50,7 +73,7 @@ fun BattleScreen(navController: NavController, model: GameModel){
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { navController.navigate("Lobby") },            //kanske till main
+                onClick = { handleLeaveGame(navController, model) },            //kanske till main
                 modifier = Modifier.padding(16.dp),
                 shape = CircleShape,
                 containerColor = Color(0xFFD3368E),
@@ -157,7 +180,8 @@ fun BattleScreen(navController: NavController, model: GameModel){
 
 fun handleLeaveGame(navController: NavController, model: GameModel){
     if( model.localBattleId.value != null && model.localBattleId != null) {
-        model.db.collection("battles").document(model.localBattleId.value!!).delete().addOnSuccessListener {
+        model.db.collection("battles").document(model.localBattleId.value!!).update("gamestate","game over").addOnSuccessListener {
+            model.localBattleId.value = null
             navController.navigate("Lobby") {
                 popUpTo("Battle") { inclusive = true }
             }
@@ -166,6 +190,7 @@ fun handleLeaveGame(navController: NavController, model: GameModel){
         }
     }else {
         Log.w("BattleScreen", "Current battle ID is null")
+        model.localBattleId.value = null
         navController.navigate("Lobby") {
             popUpTo("Battle") { inclusive = true }
         }

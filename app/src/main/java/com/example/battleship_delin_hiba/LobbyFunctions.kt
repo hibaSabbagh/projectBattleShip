@@ -35,7 +35,7 @@ fun LobbyScreen(navController: NavController, model: GameModel, sharedPreference
     val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()        //ett sätt att samla info om spelare & aktiva matcher och göra tillgänglig till UI
     val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
     var showChallengePopup by remember { mutableStateOf(false) }                //för popup om man har fått en challenge, false då man har ej fått en
-    var currentBattleId by remember { mutableStateOf("") }
+    var currentBattleId by model.localBattleId
 
 
 //om den lokala spelare är en av spelarna och deras tur så går man till setUppBoard
@@ -114,7 +114,7 @@ fun LobbyScreen(navController: NavController, model: GameModel, sharedPreference
         ChallengePopup(
             navController = navController,
             model = model,
-            battleId = currentBattleId,
+            battleId = currentBattleId.toString(),
             onDismiss = { showChallengePopup = false }
         )
     }
@@ -153,9 +153,11 @@ fun PlayerListLoop( padding : PaddingValues, navController: NavController, model
                         )
                     },
                     headlineContent = { Text(text = player.value.name) },
-                    trailingContent = { var hasGame = false                                                                    //annars loopar igenom matcher och kollar om någon har invitet till spelet
+                    trailingContent = {
+                        var hasGame = false                                                                    //annars loopar igenom matcher och kollar om någon har invitet till spelet
                         battles.forEach { (gameId, battle) ->
                             if (battle.player1Id == model.localPlayerId.value && battle.gamestate == "Invite") {
+                                model.localBattleId.value = gameId
                                 hasGame = true
                                 Text("Waiting for accept...")
                             }
@@ -196,6 +198,7 @@ fun  ChallengePopup(navController: NavController, model: GameModel, battleId: St
             Button(
                 onClick = {
                     model.db.collection("battles").document(battleId).update("gamestate", "player1_turn").addOnSuccessListener {
+                        model.localBattleId.value = battleId
                         navController.navigate("SetUpBoard") }
                     onDismiss()
                 }

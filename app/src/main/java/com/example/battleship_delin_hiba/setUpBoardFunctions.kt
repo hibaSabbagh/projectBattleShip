@@ -21,6 +21,7 @@ enum class  Orientation{
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SetUpBoardScreen(navController: NavController,model: GameModel) {
+    //var currentBattleId by model.localBattleId
     val tiles = 10
     val boardDataChange = Array(tiles) { Array(tiles) { 0 } }
 
@@ -88,7 +89,7 @@ fun SetUpBoardScreen(navController: NavController,model: GameModel) {
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            navController.popBackStack()
+                            navController.navigate("Lobby")
                         }
                     ){
                         Icon(
