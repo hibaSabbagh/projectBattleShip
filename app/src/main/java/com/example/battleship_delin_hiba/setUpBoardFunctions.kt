@@ -1,5 +1,6 @@
 package com.example.battleship_delin_hiba
 
+import android.R.attr.onClick
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
@@ -168,7 +169,7 @@ fun SetUpBoardScreen(navController: NavController,model: GameModel) {
                             shape = RectangleShape
                         )
                             .size(30.dp)
-                            .border(1.dp, Color.Black).clickable { boardDataChange[row][column] = 1 }
+                            .border(1.dp, Color.Black)
                         )
                     }
                 }

@@ -12,9 +12,14 @@ firebaseFirestore = "25.1.1"
 firebaseBom = "33.6.0"
 runtime = "1.1.1"
 firebaseDatabaseKtx = "21.0.0"
+firebaseDatabase = "21.0.0"
+playServicesLocation = "21.3.0"
+navigationCompose = "2.8.4"
+firebaseAnalytics = "22.1.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -32,6 +37,10 @@ firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 runtime = { group = "android.arch.lifecycle", name = "runtime", version.ref = "runtime" }
 firebase-database-ktx = { group = "com.google.firebase", name = "firebase-database-ktx", version.ref = "firebaseDatabaseKtx" }
+firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+google-firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics", version.ref = "firebaseAnalytics" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

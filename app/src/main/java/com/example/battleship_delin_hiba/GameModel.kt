@@ -29,6 +29,7 @@ class Ship(
     }
 }
 
+// hantera logiken här
 
 class GameModel: ViewModel(){                              //hantera all data och koppla appen till Firebase Firestore
     val db = Firebase.firestore
@@ -37,6 +38,7 @@ class GameModel: ViewModel(){                              //hantera all data oc
     val battleMap = MutableStateFlow<Map<String, Battle>>(emptyMap())
     var localBattleId = mutableStateOf<String?>(null)
     var localBoardId = mutableStateOf<String?>(null)
+
     private val _ships = listOf(
         Ship(size = 4, -585.5292f, 1024.0963f, Orientation.VERTICAL),
         Ship(size = 3, -365.75513f, 1007.4595f, Orientation.VERTICAL),
@@ -69,5 +71,11 @@ class GameModel: ViewModel(){                              //hantera all data oc
                 battleMap.value = updatedGameMap
             }
         }
+    }
+
+    fun handleLeaveGame(){}
+
+    fun handleTilePress(x: Int, y: Int){
+
     }
 }

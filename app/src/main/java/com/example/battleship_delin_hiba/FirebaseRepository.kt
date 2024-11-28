@@ -36,6 +36,7 @@ class FirebaseRepository {             //denna ska anropas i SetUpBoard
                         val board = Array(boardFromFirebase.size) { row ->
                             Array(boardFromFirebase[row].size) { col ->
                                 boardFromFirebase[row][col].toInt()
+
                             }
                         }
                         onResult(board)
