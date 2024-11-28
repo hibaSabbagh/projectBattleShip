@@ -42,14 +42,14 @@ class GameModel: ViewModel(){                              //hantera all data oc
     var localBattleId = mutableStateOf<String?>(null)
     var localBoardId = mutableStateOf<String?>(null)
 
-    private val _ships = listOf(
-        Ship(size = 4, -585.5292f, 1024.0963f, Orientation.VERTICAL),
-        Ship(size = 3, -365.75513f, 1007.4595f, Orientation.VERTICAL),
-        Ship(size = 2, -163.72134f, 973.02344f, Orientation.VERTICAL),
-        Ship(size = 2, 74.60945f, 980.7355f, Orientation.VERTICAL),
-        Ship(size = 1, 336.9688f, 1004.18533f, Orientation.VERTICAL),
-        Ship(size = 1, 573.9590f, 992.188233f, Orientation.VERTICAL)
-    )
+//    private val _ships = listOf(
+//        Ship(size = 4, -585.5292f, 1024.0963f, Orientation.VERTICAL),
+//        Ship(size = 3, -365.75513f, 1007.4595f, Orientation.VERTICAL),
+//        Ship(size = 2, -163.72134f, 973.02344f, Orientation.VERTICAL),
+//        Ship(size = 2, 74.60945f, 980.7355f, Orientation.VERTICAL),
+//        Ship(size = 1, 336.9688f, 1004.18533f, Orientation.VERTICAL),
+//        Ship(size = 1, 573.9590f, 992.188233f, Orientation.VERTICAL)
+//    )
 
     fun initGame(){
         db.collection("players").addSnapshotListener{ value, error ->
@@ -76,9 +76,9 @@ class GameModel: ViewModel(){                              //hantera all data oc
         }
     }
 
-    fun handleLeaveGame(){}
 
-    fun handleTilePress(x: Int, y: Int){
+    fun handleTilePress(gameId: String, x: Float, y: Float){
+
 
     }
 }

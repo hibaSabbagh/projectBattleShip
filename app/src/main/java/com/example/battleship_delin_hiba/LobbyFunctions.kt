@@ -59,6 +59,11 @@ fun LobbyScreen(
         playerName = it.name
     }
 
+<<<<<<< Updated upstream
+=======
+
+
+>>>>>>> Stashed changes
     Scaffold(                                                       //för tillbak knappen och online cirkel
         topBar = {
             TopAppBar(
@@ -143,6 +148,12 @@ fun LobbyScreen(
 }
 
 
+<<<<<<< Updated upstream
+=======
+
+
+
+>>>>>>> Stashed changes
 //visar en lista av spelare och loopar igenom alla spelare i playerMap,
 //om lokal spelare visas som you,
 //för andra spelare antingen om aktiv inbjuda finns så waiting eller om aktiv inbjuda inte finns challenge knappen
@@ -211,6 +222,12 @@ fun PlayerListLoop(padding: PaddingValues, navController: NavController, model: 
 }
 
 
+<<<<<<< Updated upstream
+=======
+
+
+
+>>>>>>> Stashed changes
 @Composable
 fun ChallengePopup(
     navController: NavController,

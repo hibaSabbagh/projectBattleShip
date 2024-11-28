@@ -12,6 +12,16 @@ import androidx.compose.ui.graphics.*
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
+<<<<<<< Updated upstream
+=======
+
+
+enum class  Orientation{
+    HORIZONTAL,
+    VERTICAL
+}
+>>>>>>> Stashed changes
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

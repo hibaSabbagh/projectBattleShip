@@ -28,7 +28,6 @@ import androidx.compose.runtime.setValue
 @Composable
 fun BattleScreen(navController: NavController, model: GameModel) {
 
-
     LaunchedEffect(model.localBattleId) {
         var currentBattleId by model.localBattleId
 
@@ -132,7 +131,31 @@ fun BattleScreen(navController: NavController, model: GameModel) {
                     .padding(start = 50.dp, end = 50.dp)
                     .fillMaxWidth()
                     .height(400.dp)
+<<<<<<< Updated upstream
             ) {}
+=======
+            ) {
+                itemsIndexed(boardData.flatten()) { index, tileValue ->
+                    val row = index / tiles
+                    val column = index % tiles
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .background(
+                                color = if (boardData[row][column] == 0) {
+                                    Color.White
+                                } else {
+                                    Color.Gray
+                                },
+                                shape = RectangleShape
+                            )
+                            .size(30.dp)
+
+                            .border(1.dp, Color.Black)     // add clickable
+                    )
+                }
+            }
+>>>>>>> Stashed changes
             LazyVerticalGrid(
                 columns = GridCells.Fixed(100),
                 modifier = Modifier
@@ -164,3 +187,4 @@ fun handleLeaveGame(navController: NavController, model: GameModel) {
         }
     }
 }
+
