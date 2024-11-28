@@ -14,7 +14,6 @@ enum class  Orientation{
     VERTICAL
 }
 
-
 class Ship(
     val size: Int,
 

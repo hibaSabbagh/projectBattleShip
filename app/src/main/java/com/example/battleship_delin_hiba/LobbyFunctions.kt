@@ -58,12 +58,6 @@ fun LobbyScreen(
     players[model.localPlayerId.value]?.let {
         playerName = it.name
     }
-
-<<<<<<< Updated upstream
-=======
-
-
->>>>>>> Stashed changes
     Scaffold(                                                       //för tillbak knappen och online cirkel
         topBar = {
             TopAppBar(
@@ -116,7 +110,7 @@ fun LobbyScreen(
                 content = { Text("Leave Lobby") }
             )
         },
-        content = { padding -> PlayerListLoop(padding, navController, model) },
+        content = { padding -> PlayerListLoop(padding, model) },
         bottomBar = {
             BottomAppBar(                                                                                 //för antal spelare i lobby och båten
                 containerColor = Color(0xFFD3368E),
@@ -147,18 +141,11 @@ fun LobbyScreen(
     }
 }
 
-
-<<<<<<< Updated upstream
-=======
-
-
-
->>>>>>> Stashed changes
 //visar en lista av spelare och loopar igenom alla spelare i playerMap,
 //om lokal spelare visas som you,
 //för andra spelare antingen om aktiv inbjuda finns så waiting eller om aktiv inbjuda inte finns challenge knappen
 @Composable
-fun PlayerListLoop(padding: PaddingValues, navController: NavController, model: GameModel) {
+fun PlayerListLoop(padding: PaddingValues, model: GameModel) {
     val playerMapCpy by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
     val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
 
@@ -221,13 +208,6 @@ fun PlayerListLoop(padding: PaddingValues, navController: NavController, model: 
     }
 }
 
-
-<<<<<<< Updated upstream
-=======
-
-
-
->>>>>>> Stashed changes
 @Composable
 fun ChallengePopup(
     navController: NavController,

@@ -125,38 +125,15 @@ fun BattleScreen(navController: NavController, model: GameModel) {
             Spacer(
                 modifier = Modifier.height(50.dp)
             )
-            LazyVerticalGrid(
+            LazyVerticalGrid(            // if statment to manage which board is here
                 columns = GridCells.Fixed(100),
                 modifier = Modifier
                     .padding(start = 50.dp, end = 50.dp)
                     .fillMaxWidth()
                     .height(400.dp)
-<<<<<<< Updated upstream
             ) {}
-=======
-            ) {
-                itemsIndexed(boardData.flatten()) { index, tileValue ->
-                    val row = index / tiles
-                    val column = index % tiles
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .background(
-                                color = if (boardData[row][column] == 0) {
-                                    Color.White
-                                } else {
-                                    Color.Gray
-                                },
-                                shape = RectangleShape
-                            )
-                            .size(30.dp)
 
-                            .border(1.dp, Color.Black)     // add clickable
-                    )
-                }
-            }
->>>>>>> Stashed changes
-            LazyVerticalGrid(
+            LazyVerticalGrid(                        // and which board to show here
                 columns = GridCells.Fixed(100),
                 modifier = Modifier
                     .size(width = 200.dp, height = 200.dp)
