@@ -15,7 +15,8 @@ data class Battle(                            //data klass som representerar en 
     val player1Id: String = "",
     val player2Id: String = "",
     val gamestate: String = "Invite",
-    var gameBoard: List<Int> = List(100) {0}
+    var gameBoardP1: List<Int> = List(100) {0},
+    var gameBoardP2: List<Int> = List(100) {0}
 )
 
 

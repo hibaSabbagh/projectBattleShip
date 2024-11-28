@@ -41,22 +41,14 @@ fun BattleScreen(navController: NavController, model: GameModel) {
                     .addOnSuccessListener {
                         currentBattleId = null
                         navController.navigate("Lobby") {
-                            popUpTo("Battle") { inclusive = true }
+                            popUpTo("Battle") { inclusive = true
+                            }
                         }
-
                     }
             }
         }
     }
 
-
-    val tiles = 10
-    val boardData = Array(tiles) { Array(tiles) { 0 } }
-    for (i in boardData.indices) {
-        for (j in boardData[i].indices) {
-            boardData[i][j] = 0    //(0..1).random()
-        }
-    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -135,66 +127,25 @@ fun BattleScreen(navController: NavController, model: GameModel) {
                 modifier = Modifier.height(50.dp)
             )
             LazyVerticalGrid(
-                columns = GridCells.Fixed(tiles),
+                columns = GridCells.Fixed(100),
                 modifier = Modifier
                     .padding(start = 50.dp, end = 50.dp)
                     .fillMaxWidth()
                     .height(400.dp)
-            ) {
-                itemsIndexed(boardData.flatten()) { index, tileValue ->
-                    val row = index / tiles
-                    val column = index % tiles
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .background(
-                                color = if (boardData[row][column] == 0) {
-                                    Color.White
-                                } else {
-                                    Color.Gray
-                                },
-                                shape = RectangleShape
-                            )
-                            .size(30.dp)
-
-                            .border(1.dp, Color.Black)     // add clickable
-
-
-                    )
-                }
-            }
+            ) {}
             LazyVerticalGrid(
-                columns = GridCells.Fixed(tiles),
+                columns = GridCells.Fixed(100),
                 modifier = Modifier
                     .size(width = 200.dp, height = 200.dp)
                     .padding(bottom = 10.dp)
-            ) {
-                itemsIndexed(boardData.flatten()) { index, tileValue ->
-                    val row = index / tiles
-                    val column = index % tiles
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .background(
-                                color = if (boardData[row][column] == 0) {
-                                    Color.White
-                                } else {
-                                    Color.Red
-                                },
-                                shape = RectangleShape
-                            )
-                            .size(15.dp)
-                            .border(1.dp, Color.Black)
-                    )
-                }
-            }
+            ) {}
         }
     }
 }
 
 
 fun handleLeaveGame(navController: NavController, model: GameModel) {
-    if (model.localBattleId.value != null && model.localBattleId != null) {
+    if (model.localBattleId.value != null) {
 
         model.db.collection("battles").document(model.localBattleId.value!!)
             .update("gamestate", "game over").addOnSuccessListener {

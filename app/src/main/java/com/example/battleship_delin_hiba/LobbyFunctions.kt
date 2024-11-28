@@ -22,12 +22,18 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.asStateFlow
 import kotlin.collections.get
-                                                                                                          // Andra skärm som visas
+
+// Andra skärm som visas
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LobbyScreen(navController: NavController, model: GameModel, sharedPreferences: SharedPreferences) {
-    val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()        //ett sätt att samla info om spelare & aktiva matcher och göra tillgänglig till UI
+fun LobbyScreen(
+    navController: NavController,
+    model: GameModel,
+    sharedPreferences: SharedPreferences,
+) {
+    val players by model.playerMap.asStateFlow()
+        .collectAsStateWithLifecycle()        //ett sätt att samla info om spelare & aktiva matcher och göra tillgänglig till UI
     val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
     var showChallengePopup by remember { mutableStateOf(false) }                //för popup om man har fått en challenge, false då man har ej fått en
     var currentBattleId by model.localBattleId
@@ -49,61 +55,82 @@ fun LobbyScreen(navController: NavController, model: GameModel, sharedPreference
 //om inget namn tilldelas då unknown
 //även kollar om spelare finns med i lista då tilldelas spelaren det namnet som matchar sin id
     var playerName = "Unknown?"
-    players[model.localPlayerId.value]?.let{
+    players[model.localPlayerId.value]?.let {
         playerName = it.name
     }
-
-
-
-
 
     Scaffold(                                                       //för tillbak knappen och online cirkel
         topBar = {
             TopAppBar(
                 title = {
-                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Spacer(modifier = Modifier.padding(100.dp))
                         Text(text = "Online")
                         Spacer(modifier = Modifier.padding(5.dp))
-                        Box(modifier = Modifier.size(15.dp).clip(CircleShape).background(Color.Green))
+                        Box(
+                            modifier = Modifier
+                                .size(15.dp)
+                                .clip(CircleShape)
+                                .background(Color.Green)
+                        )
                     }
                 },
                 navigationIcon = {
-                    IconButton( onClick = { handleLeaveLobby(navController, model, sharedPreferences) })     //om man trycker på tillbaka knappen så skickas man tillbaka till main
+                    IconButton(onClick = {
+                        handleLeaveLobby(
+                            navController,
+                            model,
+                            sharedPreferences
+                        )
+                    })     //om man trycker på tillbaka knappen så skickas man tillbaka till main
                     {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "back")
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "back"
+                        )
                     }
                 }
             )
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { handleLeaveLobby(navController, model, sharedPreferences)},    //om man trycker på leave lobby så skickas man tillbaka till main
+                onClick = {
+                    handleLeaveLobby(
+                        navController,
+                        model,
+                        sharedPreferences
+                    )
+                },    //om man trycker på leave lobby så skickas man tillbaka till main
                 modifier = Modifier.padding(16.dp),
                 shape = CircleShape,
                 containerColor = Color(0xFFD3368E),
                 contentColor = Color.Black,
-                content = {Text("Leave Lobby")}
+                content = { Text("Leave Lobby") }
             )
-       },
-        content = { padding -> PlayerListLoop(padding, navController, model)},
+        },
+        content = { padding -> PlayerListLoop(padding, navController, model) },
         bottomBar = {
             BottomAppBar(                                                                                 //för antal spelare i lobby och båten
                 containerColor = Color(0xFFD3368E),
                 contentColor = Color.Black,
                 content = {
-                    Row (
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
-                    ){
-                        Text (text = "${battles.size} active games")
-                        Icon( painter = painterResource(id = R.drawable.directions_boat),
-                            contentDescription = "boat")
+                    ) {
+                        Text(text = "${battles.size} active games")  // if statment där du räcknar vilka inte har game over för state
+                        Icon(
+                            painter = painterResource(id = R.drawable.directions_boat),
+                            contentDescription = "boat"
+                        )
                     }
                 }
             )
-       }
+        }
     )
     if (showChallengePopup) {                                             //om man accepterar challenge så visas popup
         ChallengePopup(
@@ -116,19 +143,19 @@ fun LobbyScreen(navController: NavController, model: GameModel, sharedPreference
 }
 
 
-
-
-
-
 //visar en lista av spelare och loopar igenom alla spelare i playerMap,
 //om lokal spelare visas som you,
 //för andra spelare antingen om aktiv inbjuda finns så waiting eller om aktiv inbjuda inte finns challenge knappen
 @Composable
-fun PlayerListLoop( padding : PaddingValues, navController: NavController, model : GameModel) {
+fun PlayerListLoop(padding: PaddingValues, navController: NavController, model: GameModel) {
     val playerMapCpy by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
     val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
 
-    LazyColumn( modifier = Modifier.fillMaxSize().padding(padding)) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)
+    ) {
         items(playerMapCpy.entries.toList()) { player ->
             if (player.key == model.localPlayerId.value) {                         //kollar om spelarensId matchar den lokala spelareId
                 ListItem(
@@ -149,7 +176,8 @@ fun PlayerListLoop( padding : PaddingValues, navController: NavController, model
                     },
                     headlineContent = { Text(text = player.value.name) },
                     trailingContent = {
-                        var hasGame = false                                                                    //annars loopar igenom matcher och kollar om någon har invitet till spelet
+                        var hasGame =
+                            false                                                                    //annars loopar igenom matcher och kollar om någon har invitet till spelet
                         battles.forEach { (gameId, battle) ->
                             if (battle.player1Id == model.localPlayerId.value && battle.gamestate == "Invite") {
                                 model.localBattleId.value = gameId
@@ -164,10 +192,15 @@ fun PlayerListLoop( padding : PaddingValues, navController: NavController, model
                                         Battle(
                                             gamestate = "Invite",                                                      //inbjudan skickas och player1Id ändras till localPlayerId
                                             player1Id = model.localPlayerId.value!!,
-                                            player2Id = player.key)
+                                            player2Id = player.key
+                                        )
                                     )
                                 },
-                                colors = ButtonDefaults.buttonColors( containerColor = Color(0xFFD3368E)),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(
+                                        0xFFD3368E
+                                    )
+                                ),
                             ) { Text(text = "Challenge") }
                         }
                     }
@@ -178,13 +211,13 @@ fun PlayerListLoop( padding : PaddingValues, navController: NavController, model
 }
 
 
-
-
-
-
-
 @Composable
-fun  ChallengePopup(navController: NavController, model: GameModel, battleId: String, onDismiss: ()-> Unit){
+fun ChallengePopup(
+    navController: NavController,
+    model: GameModel,
+    battleId: String,
+    onDismiss: () -> Unit,
+) {
     AlertDialog(
         onDismissRequest = { onDismiss() },
         title = { Text("Challenge Received") },
@@ -192,9 +225,11 @@ fun  ChallengePopup(navController: NavController, model: GameModel, battleId: St
         confirmButton = {
             Button(
                 onClick = {
-                    model.db.collection("battles").document(battleId).update("gamestate", "player1_turn").addOnSuccessListener {
-                        model.localBattleId.value = battleId
-                        navController.navigate("SetUpBoard") }
+                    model.db.collection("battles").document(battleId)
+                        .update("gamestate", "player1_turn").addOnSuccessListener {
+                            model.localBattleId.value = battleId
+                            navController.navigate("SetUpBoard")
+                        }
                     onDismiss()
                 }
             ) { Text("Accept") }
@@ -203,20 +238,21 @@ fun  ChallengePopup(navController: NavController, model: GameModel, battleId: St
             Button(
                 onClick = {
                     model.db.collection("battles").document(battleId).delete()
-                    onDismiss() }
+                    onDismiss()
+                }
             ) { Text("Decline") }
         }
     )
 }
-    //här hanteras popup, om man accepterar så uppdateras matchen i databasen och player1 tur, sen onDismiss tar bort popup
-    // om man inte accepterar så tas bort matchen från databasen sen onDismiss tar bort popup
+//här hanteras popup, om man accepterar så uppdateras matchen i databasen och player1 tur, sen onDismiss tar bort popup
+// om man inte accepterar så tas bort matchen från databasen sen onDismiss tar bort popup
 
 
-
-
-
-
-fun handleLeaveLobby(navController: NavController, model: GameModel, sharedPreferences: SharedPreferences){
+fun handleLeaveLobby(
+    navController: NavController,
+    model: GameModel,
+    sharedPreferences: SharedPreferences,
+) {
     model.localPlayerId.value?.let {
         model.db.collection("players").document(it).delete().addOnSuccessListener {
             model.localPlayerId.value = null

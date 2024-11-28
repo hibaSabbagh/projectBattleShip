@@ -9,7 +9,10 @@ import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.flow.MutableStateFlow
 
 
-
+enum class  Orientation{
+    HORIZONTAL,
+    VERTICAL
+}
 
 
 class Ship(
