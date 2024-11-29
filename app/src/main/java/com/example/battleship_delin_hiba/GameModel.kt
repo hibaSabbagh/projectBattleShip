@@ -1,7 +1,5 @@
 package com.example.battleship_delin_hiba
 
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
@@ -14,27 +12,13 @@ enum class  Orientation{
     VERTICAL
 }
 
-class Ship(
+ data class Ship(
     val size: Int,
+    var start : Int,
+    var orientation: Orientation = Orientation.VERTICAL,
 
-    x : Int,
-    y : Int,
-    orientation: Orientation = Orientation.VERTICAL,
+    )
 
-    ) {
-    var X = mutableIntStateOf(x)   // on position change
-    var Y = mutableIntStateOf(y)
-    var orientation = mutableStateOf(orientation)
-    var hits = mutableIntStateOf(0)
-    fun isSunk(): Boolean {
-        return hits.value == size
-    }
-    fun placement(): {
-
-    }
-}
-
-// hantera logiken här
 
 class GameModel: ViewModel(){                              //hantera all data och koppla appen till Firebase Firestore
     val db = Firebase.firestore
@@ -45,12 +29,12 @@ class GameModel: ViewModel(){                              //hantera all data oc
     var localBoardId = mutableStateOf<String?>(null)
 
     private val _ships = listOf(
-        Ship(size = 4, 2, 0, Orientation.VERTICAL),
-        Ship(size = 3, 1, 9, Orientation.VERTICAL),
-        Ship(size = 2, 0, 4, Orientation.HORIZONTAL),
-        Ship(size = 2, 9, 3, Orientation.HORIZONTAL),
-        Ship(size = 1, 4, 4, Orientation.VERTICAL),
-        Ship(size = 1, 0, 0, Orientation.VERTICAL)
+        Ship(size = 4, 2, Orientation.VERTICAL),
+        Ship(size = 3, 1, Orientation.VERTICAL),
+        Ship(size = 2, 0, Orientation.HORIZONTAL),
+        Ship(size = 2, 9,  Orientation.HORIZONTAL),
+        Ship(size = 1, 4,  Orientation.VERTICAL),
+        Ship(size = 1, 0,  Orientation.VERTICAL)
     )
 
     fun initGame(){
@@ -89,45 +73,87 @@ class GameModel: ViewModel(){                              //hantera all data oc
         }
     }
 
+    fun handleTilePress(gameId: String, x: Float, y: Float){}
 
 
-//    fun checkGameState(gameId: String) {
-//        val game = battleMap.value[gameId] ?: return
-//        val currentPlayer = game.player1Id.value ?: return
-//
-//        val playerShip = if (game.player1Id == currentPlayer) {
-//            game.player1Id.map { it.toShip() }
-//        } else {
-//            game.player2Id.map { it.toShip() }
-//        }
-//
-//        val opponentShip = if (game.player1Id == currentPlayer) {
-//            game.player2Id.map { it.toShip() }
-//        } else {
-//            game.player1Id.map { it.toShip() }
-//        }
-//        val winner = checkWinner(playerShip, opponentShip)
-//        val newGameState = when(winner) {
-//            1 -> "player1_won"
-//            2 -> "player2_won"
-//            else -> if (Battle.gamestate == "player1_turn") "player2_turn" else "player1_turn"
-//        }
-//
-//        db.collection("battles").document(gameId)
-//            .update(
-//                mapOf(
-//                    "gamestate" to newGameState,
-//                    "player1Id" to game.player1Id,
-//                    "player2Id" to game.player2Id
-//                )
-//            )
-//    }
+    fun moveShip(ship : Ship, newPosition: Int, gameBoard: List<Int>): Boolean {
+        val endPosition = if (ship.orientation == Orientation.HORIZONTAL){
+            newPosition + ship.size - 1
+        } else {
+            newPosition + (ship.size -1)* 10
+        }
+
+        if(endPosition > 99) return false
+
+        for (i in 0 until ship.size){
+            val index = if (ship.orientation == Orientation.HORIZONTAL){
+                newPosition +i
+            } else {
+                newPosition + i * 10
+            }
+
+            if( index >= gameBoard.size || gameBoard[index] != 0) return false
+        }
+
+        ship.start = newPosition
+        return true
+    }
+
+
+    fun rotateShip(ship : Ship, gameBoard: List<Int>): Boolean {
+        val newOrientation = if (ship.orientation == Orientation.HORIZONTAL){
+            Orientation.VERTICAL
+        } else {
+            Orientation.HORIZONTAL
+        }
+        val canRotate = moveShip(ship, ship.start, gameBoard)
+        if(canRotate){
+            ship.orientation = newOrientation
+        }
+        return canRotate
+    }
+
+
+    fun isCollisionFree(ship: Ship, gameBoard: List<Int>): Boolean {
+        val neighbors = listOf(-10 - 1, -10, -10 + 1, -1, 1, 10 - 1, 10, 10 + 1)
+
+        for (i in 0 until ship.size) {
+            val index = if (ship.orientation == Orientation.HORIZONTAL) {
+                ship.start + i
+            } else {
+                ship.start + i * 10
+            }
+            for (neighbor in neighbors) {
+                val neighborIndex = index + neighbor
+                if (neighborIndex in gameBoard.indices && gameBoard[neighborIndex] != 0){
+                    return false
+                }
+            }
+        }
+        return true
+    }
 
 
 
+    fun saveShipToFirebase(BattleId: String, playerShips: List<Ship> , gameBoard: List<Int>){
+        val shipData = playerShips.map{ ship ->
+            mapOf(
+                "size" to ship.size,
+                "start" to ship.start,
+                "orientation" to ship.orientation.toString()
+            )
+        }
+        val gameDtaa = mapOf(
+            "gameBoardP1" to gameBoard,
+            "ships" to shipData
+        )
 
-    fun handleTilePress(gameId: String, x: Float, y: Float){
-
-
+        db.collection("battles").document(BattleId).update("player1Ships", shipData)
+            .addOnSuccessListener {
+                println("ships saved")
+            }
+            .addOnFailureListener{ error ->
+                println("ships not saved")
+            }
     }
 }
