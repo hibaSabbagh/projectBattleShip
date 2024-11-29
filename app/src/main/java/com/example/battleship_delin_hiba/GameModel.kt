@@ -143,7 +143,7 @@ class GameModel: ViewModel(){                              //hantera all data oc
                 "orientation" to ship.orientation.toString()
             )
         }
-        val gameDtaa = mapOf(
+        val gameData = mapOf(
             "gameBoardP1" to gameBoard,
             "ships" to shipData
         )

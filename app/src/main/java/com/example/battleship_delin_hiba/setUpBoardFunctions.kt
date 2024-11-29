@@ -4,6 +4,7 @@ package com.example.battleship_delin_hiba
 
 import android.icu.text.Transliterator
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
@@ -23,10 +24,20 @@ import kotlinx.coroutines.flow.asStateFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SetUpBoardScreen(navController: NavController,model: GameModel) {
+fun SetUpBoardScreen(navController: NavController, model: GameModel) {
     val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
     val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
-    val shipPositions = remember { mutableStateOf(Pair(0,0)) }
+    val gameBoard = remember { mutableStateListOf(*List(100) { 0 }.toTypedArray()) }
+    val ships = remember {
+        mutableStateListOf(
+            Ship(size = 4, start = 0),
+            Ship(size = 3, start = 20),
+            Ship(size = 2, start = 40),
+            Ship(size = 2, start = 50),
+            Ship(size = 1, start = 60),
+            Ship(size = 1, start = 70)
+        )
+    }
 
     Scaffold (
         topBar = {
@@ -44,7 +55,7 @@ fun SetUpBoardScreen(navController: NavController,model: GameModel) {
         floatingActionButton = {
             Column {
                 ExtendedFloatingActionButton(
-                    onClick = { handleStartGame(navController, model) }, // handel start game
+                    onClick = { handleStartGame(navController, model, ships, gameBoard) }, // handel start game
                     modifier = Modifier.padding(16.dp),
                     shape = CircleShape,
                     containerColor = Color(0xFFD3368E),
@@ -54,7 +65,9 @@ fun SetUpBoardScreen(navController: NavController,model: GameModel) {
             }
         },
         content = { padding ->
-            Column (modifier = Modifier.padding(padding).fillMaxSize(),
+            Column (modifier = Modifier
+                .padding(padding)
+                .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ){
@@ -63,20 +76,22 @@ fun SetUpBoardScreen(navController: NavController,model: GameModel) {
                     modifier = Modifier.fillMaxSize()
                 ){
                     items(100){ index ->
-                        val row = index / 10
-                        val column = index % 10
-                        val position = row to column
                         Box (
                             modifier = Modifier
-                                .size(50.dp)
-                                .background(Color.White)
+                                .size(40.dp)
+                                .background(if(gameBoard[index] == 0){Color.White}
+                                    else {Color.Gray})
+                                .border(1.dp, Color.Black)
+                                .clickable{
+                                    val selectedShip = ships.firstOrNull{ it.start == index}
+                                    if(selectedShip != null){
+                                        model.moveShip(selectedShip,index, gameBoard)
+                                    }
+                                }
 
                         )
-
                     }
                 }
-                ship( shipPositions.value, onPositionChange = {newPosition ->
-                    shipPositions.value = newPosition})
             }
         }
     )
@@ -86,24 +101,9 @@ fun SetUpBoardScreen(navController: NavController,model: GameModel) {
 
 
 
-@Composable
-fun ship(
-    position: Pair<Int, Int>,
-    onPositionChange: (Pair<Int, Int>) -> Unit
-){
-    Box (
-        modifier = Modifier
-            .size(50.dp)
-            .background(Color.White)
-            .pointerInput(Unit) {
-                detectDragGestures { change, dragAmount ->
-                    onPositionChange( position.first + dragAmount.x.toInt() / 50 to  position.second + dragAmount.y.toInt() / 50)
-                }
-            }
-    )
-}
-
-fun handleStartGame(navController: NavController, model: GameModel){
+fun handleStartGame(navController: NavController, model: GameModel, ships: List<Ship>, gameBoard: List<Int>){
+    model.saveShipToFirebase("battleId", ships, gameBoard)
+    navController.navigate("GameScreen")
 }
 
 

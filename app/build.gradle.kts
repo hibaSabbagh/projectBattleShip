@@ -42,7 +42,7 @@ android {
 
 dependencies {
 
-    implementation(libs.firebase.bom)
+    implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.database)
     implementation(libs.play.services.location)
