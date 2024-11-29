@@ -12,6 +12,7 @@ import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.material3.*
+import androidx.compose.runtime.key
 import androidx.compose.ui.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
@@ -190,7 +191,9 @@ fun PlayerListLoop(padding: PaddingValues, model: GameModel) {
                                         Battle(
                                             gamestate = "Invite",                                                      //inbjudan skickas och player1Id ändras till localPlayerId
                                             player1Id = model.localPlayerId.value!!,
-                                            player2Id = player.key
+                                            player2Id = player.key,
+                                            gameBoardP1 = List(100) { 0 },
+                                            gameBoardP2 = List(100) { 0 }
                                         )
                                     )
                                 },
@@ -265,3 +268,24 @@ fun handleLeaveLobby(
 //annars Tar bort spelaren från databasen. Nollställer det lokala spelar-ID:t i appen. Tar bort spelarens ID från databasen
 //Navigerar användaren tillbaka till main
 
+@Composable
+fun handlePressChallange( model: GameModel, key : String){
+    val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
+    val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
+    model.db.collection("battles").add(
+        Battle(
+            gamestate = "Invite",                                                      //inbjudan skickas och player1Id ändras till localPlayerId
+            player1Id = model.localPlayerId.value!!,
+            player2Id = key,
+            gameBoardP1 = List(100) { 0 },
+            gameBoardP2 = List(100) { 0 }
+        )
+    )
+    if(model.localPlayerId.value == battles[model.localBattleId.value]?.player1Id){
+        model.localBoardId.value = battles[model.localBattleId.value]?.player1Id
+    } else if(model.localPlayerId.value == battles[model.localBattleId.value]?.player2Id){
+        model.localBoardId.value = battles[model.localBattleId.value]?.player2Id
+    }
+}
+
+// players[battles[model.localBattleId.value]?.player2Id]?.name

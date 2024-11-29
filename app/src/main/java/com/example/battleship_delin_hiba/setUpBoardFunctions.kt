@@ -2,19 +2,27 @@ package com.example.battleship_delin_hiba
 
 
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import kotlinx.coroutines.flow.asStateFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SetUpBoardScreen(navController: NavController,model: GameModel) {
+    val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
+    val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
+
     Scaffold (
         topBar = {
             TopAppBar(
@@ -46,9 +54,8 @@ fun SetUpBoardScreen(navController: NavController,model: GameModel) {
                 verticalArrangement = Arrangement.Top
             ){
                 LazyVerticalGrid(modifier = Modifier.padding(start = 50.dp, end = 50.dp, top = 50.dp)
-                        .fillMaxWidth().height(400.dp),
-                    columns = TODO()
-                ){}
+                        .fillMaxWidth().height(400.dp).clickable( onClick = { navController.navigate("Battle") }),
+                    columns = TODO(), content = { }  )
             }
         }
     )
@@ -61,7 +68,8 @@ fun handleStartGame(navController: NavController, model: GameModel){
     }
 }
 
-/*
+
+   /*
     *    1 0 0 0 1 1 0 0 0 0
     *    0 0 0 0 0 0 0 0 0 1
     *    1 0 0 0 0 0 0 0 0 1
@@ -72,6 +80,4 @@ fun handleStartGame(navController: NavController, model: GameModel){
     *    0 0 0 0 0 0 0 0 0 0
     *    0 0 0 0 0 0 0 0 0 0
     *    0 0 0 1 1 0 0 0 0 0
-    *
-    *
-    * */
+    */

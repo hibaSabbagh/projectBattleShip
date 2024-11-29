@@ -21,12 +21,16 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.asStateFlow
 
 
 // Fjärde skärm som visas
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BattleScreen(navController: NavController, model: GameModel) {
+    val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
+    val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
 
     LaunchedEffect(model.localBattleId) {
         var currentBattleId by model.localBattleId
@@ -101,7 +105,7 @@ fun BattleScreen(navController: NavController, model: GameModel) {
                         contentDescription = "person",
                         modifier = Modifier.size(40.dp)
                     )
-                    Text(text = "${model.playerMap.value[model.battleMap.value[model.localBattleId.value]?.player1Id]?.name}")
+                    Text(text = "${players[battles[model.localBattleId.value]?.player1Id]?.name}")
                 }
                 Spacer(modifier = Modifier.width(30.dp))             //space mellan player1 och vs.
                 Text(
@@ -119,7 +123,7 @@ fun BattleScreen(navController: NavController, model: GameModel) {
                         contentDescription = "person",
                         modifier = Modifier.size(40.dp)
                     )
-                    Text(text = "${model.playerMap.value[model.battleMap.value[model.localBattleId.value]?.player2Id]?.name}")
+                    Text(text = "${players[battles[model.localBattleId.value]?.player2Id]?.name}")
                 }
             }
             Spacer(
