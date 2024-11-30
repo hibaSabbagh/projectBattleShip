@@ -1,5 +1,6 @@
 package com.example.battleship_delin_hiba
 
+import android.R.attr.onClick
 import android.content.SharedPreferences
 import android.util.Log
 import androidx.compose.foundation.*
@@ -17,24 +18,45 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.asStateFlow
 
 
-                                                                     // Fjärde skärm som visas
+// Fjärde skärm som visas
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BattleScreen(navController: NavController, model: GameModel){
-    val tiles = 10
-    val boardData = Array(tiles) { Array(tiles) { 0 } }
-    for(i in boardData.indices){
-        for(j in boardData[i].indices){
-            boardData[i][j] = 0    //(0..1).random()
+fun BattleScreen(navController: NavController, model: GameModel) {
+    val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
+    val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
+
+    LaunchedEffect(model.localBattleId) {
+        var currentBattleId by model.localBattleId
+
+        if (currentBattleId == null) {
+            navController.navigate("Lobby")
+        } else {
+            val battle = model.battleMap.value[currentBattleId]
+            if (battle?.gamestate == "game over") {
+                model.db.collection("battles").document(currentBattleId!!).delete()
+                    .addOnSuccessListener {
+                        currentBattleId = null
+                        navController.navigate("Lobby") {
+                            popUpTo("Battle") { inclusive = true
+                            }
+                        }
+                    }
+            }
         }
     }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-
+                    Text(text = "$")
                 },
                 navigationIcon = {
                     IconButton(
@@ -50,7 +72,7 @@ fun BattleScreen(navController: NavController, model: GameModel){
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { navController.navigate("Lobby") },            //kanske till main
+                onClick = { handleLeaveGame(navController, model) },            //kanske till main
                 modifier = Modifier.padding(16.dp),
                 shape = CircleShape,
                 containerColor = Color(0xFFD3368E),
@@ -59,115 +81,91 @@ fun BattleScreen(navController: NavController, model: GameModel){
             )
         }
     ) { padding ->
-        Column( modifier = Modifier
-            .padding()
-            .fillMaxSize(),
+        Column(
+            modifier = Modifier
+                .padding()
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top){
+            verticalArrangement = Arrangement.Top
+        ) {
             Spacer(modifier = Modifier.height(100.dp))
             Row(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 50.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 50.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
                 Spacer(modifier = Modifier.width(20.dp))
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
-                ){
+                ) {
                     Icon(                                               //ikon för player1
                         imageVector = Icons.Filled.AccountCircle,
                         contentDescription = "person",
                         modifier = Modifier.size(40.dp)
                     )
-                    Text( text = "player 1")
+                    Text(text = "${players[battles[model.localBattleId.value]?.player1Id]?.name}")
                 }
                 Spacer(modifier = Modifier.width(30.dp))             //space mellan player1 och vs.
                 Text(
                     text = "vs.",
-                    modifier = Modifier.padding(horizontal = 16.dp).size(40.dp),
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .size(40.dp),
                 )
                 Spacer(modifier = Modifier.width(20.dp))            //space mellan vs. och player2
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
-                ){
+                ) {
                     Icon(                                                 //ikon för player2
                         imageVector = Icons.Filled.AccountCircle,
                         contentDescription = "person",
                         modifier = Modifier.size(40.dp)
                     )
-                    Text( text = "player 2")
+                    Text(text = "${players[battles[model.localBattleId.value]?.player2Id]?.name}")
                 }
             }
             Spacer(
-                modifier = Modifier.height(50.dp))
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(tiles),
+                modifier = Modifier.height(50.dp)
+            )
+            LazyVerticalGrid(            // if statment to manage which board is here
+                columns = GridCells.Fixed(100),
                 modifier = Modifier
-                    .padding(start = 50.dp,end = 50.dp).
-                    fillMaxWidth().height(400.dp)
-            ) {
-                itemsIndexed(boardData.flatten()) { index, tileValue ->
-                    val row = index / tiles
-                    val column = index % tiles
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .background(
-                                color = if (boardData[row][column] == 0) {
-                                    Color.White
-                                } else {
-                                    Color.Gray
-                                },
-                                shape = RectangleShape
-                            )
-                            .size(30.dp)
+                    .padding(start = 50.dp, end = 50.dp)
+                    .fillMaxWidth()
+                    .height(400.dp)
+            ) {}
 
-                            .border(1.dp, Color.Black).clickable{ boardData[row][column] = 1 }
-
-
-                        )
-                }
-            }
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(tiles),
-                modifier = Modifier.size(width = 200.dp, height = 200.dp).padding(bottom = 10.dp)
-            ) {
-                itemsIndexed(boardData.flatten()) { index, tileValue ->
-                    val row = index / tiles
-                    val column = index % tiles
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .background(
-                                color = if (boardData[row][column] == 0) {
-                                    Color.White
-                                } else {
-                                    Color.Red
-                                },
-                                shape = RectangleShape
-                            )
-                            .size(15.dp)
-                            .border(1.dp, Color.Black)
-                    )
-                }
-            }
+            LazyVerticalGrid(                        // and which board to show here
+                columns = GridCells.Fixed(100),
+                modifier = Modifier
+                    .size(width = 200.dp, height = 200.dp)
+                    .padding(bottom = 10.dp)
+            ) {}
         }
     }
 }
 
-fun handleLeaveGame(navController: NavController, model: GameModel){
-    if( model.localBattleId.value != null && model.localBattleId != null) {
-        model.db.collection("battles").document(model.localBattleId.value!!).delete().addOnSuccessListener {
+
+fun handleLeaveGame(navController: NavController, model: GameModel) {
+    if (model.localBattleId.value != null) {
+
+        model.db.collection("battles").document(model.localBattleId.value!!)
+            .update("gamestate", "game over").addOnSuccessListener {
+            model.localBattleId.value = null
             navController.navigate("Lobby") {
                 popUpTo("Battle") { inclusive = true }
             }
         }.addOnFailureListener {
             Log.e("BattleScreen", "Failed to delete battle", it)
         }
-    }else {
+    } else {
         Log.w("BattleScreen", "Current battle ID is null")
+        model.localBattleId.value = null
         navController.navigate("Lobby") {
             popUpTo("Battle") { inclusive = true }
         }
     }
 }
+

@@ -15,9 +15,11 @@ data class Battle(                            //data klass som representerar en 
     val player1Id: String = "",
     val player2Id: String = "",
     val gamestate: String = "Invite",
-    var gameBoard: List<Int> = List(100) {0}
+    var gameBoardP1: List<Int> = List(100) {0},
+    var gameBoardP2: List<Int> = List(100) {0}
 )
-
+ const val rows = 10
+ const val columns = 10
 
 @Composable
 fun BattleNav(){                                                           //hanterar navigationen mellan olika skärmar och skickar meddelanden mellan de
@@ -26,15 +28,20 @@ fun BattleNav(){                                                           //han
     model.initGame()
     val sharedPreferences = LocalContext.current.getSharedPreferences("BattleShipPrefs", Context.MODE_PRIVATE)
 
-    NavHost(navController = navController, startDestination = "Main"){   //lägger in model i alla
+    NavHost(navController = navController, startDestination = "Main"){                                                   //lägger in model i alla
         composable("Main"){ MainScreen(navController,model, sharedPreferences) }
-        composable("Lobby"){ LobbyScreen(
-            navController,
-            model,
-            sharedPreferences) }
+        composable("Lobby"){ LobbyScreen(navController, model, sharedPreferences) }
         composable("SetUpBoard"){ SetUpBoardScreen(navController,model) }
         composable("Battle"){ /*backStackEntry -> val battleID = backStackEntry.arguments?.getString("battleId")*/
             BattleScreen(navController, model) }
     }
 }
 
+ // i * cols + j
+/*
+* fun getPosition(index: Int, boardSize: Int = 10): Pair<Int, Int> {
+    val row = index / boardSize
+    val column = index % boardSize
+    return Pair(row, column)
+}
+* */

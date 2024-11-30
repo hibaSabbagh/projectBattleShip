@@ -1,79 +1,44 @@
 package com.example.battleship_delin_hiba
 
-import androidx.compose.foundation.*
+
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.*
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
-enum class  Orientation{
-    HORIZONTAL,
-    VERTICAL
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SetUpBoardScreen(navController: NavController,model: GameModel) {
-    val tiles = 10
-    val boardDataChange = Array(tiles) { Array(tiles) { 0 } }
+fun SetUpBoardScreen(navController: NavController, model: GameModel) {
+    val gameCellGrid = remember { model.gameCellGrid }
+    val ships = remember { model._ships }
 
-    boardDataChange[0][0] = 1
+//    val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
+//    val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
+//    val gameBoard = remember { mutableStateListOf(*List(100) { 0 }.toTypedArray()) }
+//    val ships = remember {
+//        mutableStateListOf(
+//            Ship(size = 4, start = 0),
+//            Ship(size = 3, start = 20),
+//            Ship(size = 2, start = 40),
+//            Ship(size = 2, start = 50),
+//            Ship(size = 1, start = 60),
+//            Ship(size = 1, start = 70)
+//        )
+//    }
 
-    boardDataChange[0][0] = 1
-
-    boardDataChange[2][0] = 1
-    boardDataChange[3][0] = 1
-    boardDataChange[4][0] = 1
-    boardDataChange[5][0] = 1
-
-    boardDataChange[0][0] = 1
-    boardDataChange[0][0] = 1
-    boardDataChange[0][0] = 1
-
-    boardDataChange[0][0] = 1
-    boardDataChange[0][0] = 1
-
-    boardDataChange[0][0] = 1
-    boardDataChange[0][0] = 1
-
-    class Ship(
-        val size : Int,
-        x: Int,
-        y: Int,
-        orientation : Orientation = Orientation.VERTICAL
-    ){
-
-    }
-
-
-
-    /*
-    *    1 0 0 0 1 1 0 0 0 0
-    *    0 0 0 0 0 0 0 0 0 1
-    *    1 0 0 0 0 0 0 0 0 1
-    *    1 0 0 0 0 0 0 0 0 1
-    *    1 0 0 0 1 0 0 0 0 0
-    *    1 0 0 0 0 0 0 0 0 0
-    *    0 0 0 0 0 0 0 0 0 0
-    *    0 0 0 0 0 0 0 0 0 0
-    *    0 0 0 0 0 0 0 0 0 0
-    *    0 0 0 1 1 0 0 0 0 0
-    *
-    *
-    *
-    *
-    *
-    *
-    *
-    *
-    * */
     Scaffold (
         topBar = {
             TopAppBar(
@@ -84,53 +49,65 @@ fun SetUpBoardScreen(navController: NavController,model: GameModel) {
                     ){
                         Text(text = "Set Up Board")
                     }
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            navController.popBackStack()
-                        }
-                    ){
-                        Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "back"
-                        )
-                    }
                 }
             )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { navController.navigate("Battle") },
-                modifier = Modifier.padding(16.dp),
-                shape = CircleShape,
-                containerColor = Color(0xFFD3368E),
-                contentColor = Color.Black,
-                content = { Text("Start Game") }
-            )
+            Column {
+                ExtendedFloatingActionButton(
+                    onClick = { model.saveShipToFirebase("battleId", navController )
+                              navController.navigate("Battle")},                           // handel start game
+                    modifier = Modifier.padding(16.dp),
+                    shape = CircleShape,
+                    containerColor = Color(0xFFD3368E),
+                    contentColor = Color.Black,
+                    content = { Text("Start Game") }
+                )
+            }
         },
         content = { padding ->
-            Column (modifier = Modifier.padding(padding).fillMaxSize(),
+            Column (modifier = Modifier
+                .padding(padding)
+                .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ){
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(tiles),
-                    modifier = Modifier.padding(start = 50.dp, end = 50.dp, top = 50.dp).fillMaxWidth().height(400.dp)
+                    columns = GridCells.Fixed(10),
+                    modifier = Modifier.fillMaxSize()
                 ){
-                    itemsIndexed(boardDataChange.flatten()){ index, tileValue ->
-                        val row = index / tiles
-                        val column = index % tiles
-                        Box(Modifier.fillMaxSize().background(
-                            color = if (boardDataChange[row][column] == 0) {
-                                        Color.White
-                                } else {
-                                        Color.LightGray
-                                },
-                            shape = RectangleShape
-                        )
-                            .size(30.dp)
-                            .border(1.dp, Color.Black).clickable { boardDataChange[row][column] = 1 }
+                    items(gameCellGrid.size){ index ->
+                        val cell = gameCellGrid[index]
+                        Box (
+                            modifier = Modifier
+                                .size(40.dp)
+                                .background(if(cell.empty.value){Color.White}
+                                    else {Color.Gray})
+                                .border(1.dp, Color.Black).
+                                    pointerInput(cell){
+                                        detectDragGestures{
+                                            _, dragAmount ->
+                                            val ship = ships.firstOrNull{ it.start == index}
+                                            ship?.let{
+                                                val deltaX = dragAmount.x.toInt()/40
+                                                val deltaY = dragAmount.y.toInt()/40
+                                                val newX = (it.start % 10) + deltaX
+                                                val newY = (it.start / 10) + deltaY
+                                                val newPosition = newY * 10 + newX
+
+                                                model.moveShip(it, newPosition)
+
+                                            }
+                                        }
+                                    }
+
+                                .clickable{
+                                    val selectedShip = ships.firstOrNull{ it.start == index}
+                                    selectedShip?.let{
+                                        model.toggleShipOrientation(it)
+                                    }
+                                }
+
                         )
                     }
                 }
@@ -138,3 +115,19 @@ fun SetUpBoardScreen(navController: NavController,model: GameModel) {
         }
     )
 }
+
+
+
+
+   /*
+    *    1 0 0 0 1 1 0 0 0 0
+    *    0 0 0 0 0 0 0 0 0 1
+    *    1 0 0 0 0 0 0 0 0 1
+    *    1 0 0 0 0 0 0 0 0 1
+    *    1 0 0 0 1 0 0 0 0 0
+    *    1 0 0 0 0 0 0 0 0 0
+    *    0 0 0 0 0 0 0 0 0 0
+    *    0 0 0 0 0 0 0 0 0 0
+    *    0 0 0 0 0 0 0 0 0 0
+    *    0 0 0 1 1 0 0 0 0 0
+    */
