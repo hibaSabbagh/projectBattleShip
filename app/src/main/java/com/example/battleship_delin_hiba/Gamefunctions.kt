@@ -18,17 +18,40 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.asStateFlow
 
 
 // Fjärde skärm som visas
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BattleScreen(navController: NavController, model: GameModel) {
     val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
     val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
-   
+    val playerBoard: List<Int>?
+    val opponentBoard: List<Int>?
+    val opponentId: String?
+    val playerId: String?
+    val battle = battles[model.localBattleId.value]
+    val localBattleId = model.localBattleId.toString()
+
+
+    if (battles[model.localBattleId.value]?.player1Id == model.localPlayerId.value) {
+        playerBoard = battles[model.localBattleId.value]?.gameBoardP1
+        opponentBoard = battles[model.localBattleId.value]?.gameBoardP2
+        opponentId = battles[model.localBattleId.value]?.player2Id
+        playerId = battles[model.localBattleId.value]?.player1Id
+    } else {
+        playerBoard = battles[model.localBattleId.value]?.gameBoardP2
+        opponentBoard = battles[model.localBattleId.value]?.gameBoardP1
+        opponentId = battles[model.localBattleId.value]?.player1Id
+        playerId = battles[model.localBattleId.value]?.player2Id
+    }
+    val myTurn = battle?.gameState == GameState.player1_turn && battle.player1Id == playerId
+            || battle?.gameState == GameState.player2_turn && battle.player2Id == playerId
+
 
     LaunchedEffect(model.localBattleId) {
         var currentBattleId by model.localBattleId
@@ -42,7 +65,8 @@ fun BattleScreen(navController: NavController, model: GameModel) {
                     .addOnSuccessListener {
                         currentBattleId = null
                         navController.navigate("Lobby") {
-                            popUpTo("Battle") { inclusive = true
+                            popUpTo("Battle") {
+                                inclusive = true
                             }
                         }
                     }
@@ -54,7 +78,7 @@ fun BattleScreen(navController: NavController, model: GameModel) {
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "${model.localBattleId.value} Battle Id")
+                    Text(text = "${battle?.gameState}")
                 },
                 navigationIcon = {
                     IconButton(
@@ -103,7 +127,7 @@ fun BattleScreen(navController: NavController, model: GameModel) {
                         contentDescription = "person",
                         modifier = Modifier.size(40.dp)
                     )
-                    Text(text = "${players[battles[model.localBattleId.value]?.player1Id]?.name}")
+                    Text(text = "${players[playerId]?.name}")
                 }
                 Spacer(modifier = Modifier.width(30.dp))             //space mellan player1 och vs.
                 Text(
@@ -121,7 +145,7 @@ fun BattleScreen(navController: NavController, model: GameModel) {
                         contentDescription = "person",
                         modifier = Modifier.size(40.dp)
                     )
-                    Text(text = "${players[battles[model.localBattleId.value]?.player2Id]?.name}")
+                    Text(text = "${players[opponentId]?.name}")
                 }
             }
             Spacer(
@@ -132,15 +156,47 @@ fun BattleScreen(navController: NavController, model: GameModel) {
                 modifier = Modifier
                     .padding(start = 50.dp, end = 50.dp)
                     .fillMaxWidth()
-                    .height(400.dp).border(1.dp, Color.Black)
-            ) {}
+                    .height(400.dp)
+                    .border(1.dp, Color.Black)
+            ) {
+                if (opponentBoard != null) {
 
+                    items(opponentBoard.size) { item ->
+                        Box(
+                            modifier = Modifier
+                                .size(20.dp)
+                                .background(
+                                    if (opponentBoard[item] == 2) {
+                                        Color.Red
+                                    } else if (opponentBoard[item] == -1) {
+                                        Color.Blue
+                                    } else Color.White
+                                ).border(1.dp, Color.Black)
+                                .clickable(
+                                    onClick = { model.handleTilePress(item, localBattleId) },
+                                    enabled = (opponentBoard[item] == 0 || opponentBoard[item] == 1) && myTurn
+                                )
+                        )
+                    }
+                }
+            }
             LazyVerticalGrid(                        // and which board to show here
                 columns = GridCells.Fixed(100),
                 modifier = Modifier
                     .size(width = 200.dp, height = 200.dp)
-                    .padding(bottom = 10.dp).border(1.dp, Color.Black)
-            ) {}
+                    .padding(bottom = 10.dp)
+                    .border(1.dp, Color.Black)
+            ) {
+                if (playerBoard != null) {
+                    items(playerBoard.size) { item ->
+                        Box(
+                            modifier = Modifier
+                                .size(20.dp)
+                                .background(Color.White)
+                        )
+                    }
+                }
+            }
         }
     }
 }

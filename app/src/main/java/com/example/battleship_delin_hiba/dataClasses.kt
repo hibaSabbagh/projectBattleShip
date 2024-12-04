@@ -13,8 +13,6 @@ data class Battle(                            //data klass som representerar en 
     var gameBoardP2: List<Int> = List(100) {0}
 )
 
-const val rows = 10
-const val columns = 10
 
 
 enum class  Orientation{
@@ -29,11 +27,7 @@ data class Ship(
 
     )
 
-//data class Cell(
-//    val position: Int,
-//    var empty: MutableState<Boolean> = mutableStateOf(true),
-//    var occupideByShip: Ship? = null
-//)
+
 enum class GameState{
     Invite,
     accepted,
