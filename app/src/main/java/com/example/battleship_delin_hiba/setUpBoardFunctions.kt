@@ -2,6 +2,8 @@ package com.example.battleship_delin_hiba
 
 
 
+import android.R.attr.onClick
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -11,103 +13,98 @@ import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
+import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import kotlinx.coroutines.flow.asStateFlow
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SetUpBoardScreen(navController: NavController, model: GameModel) {
-    val gameCellGrid = remember { model.gameCellGrid }
-    val ships = remember { model._ships }
+    //ett sätt att samla info om spelare & aktiva matcher och göra tillgänglig till UI
+    val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
+    var gameBoard by remember { mutableStateOf(model.placeShipInBoard(model._ships).toMutableList())}
+    var draggingShip by remember { mutableStateOf<Ship?>(null) }
 
-//    val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
-//    val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
-//    val gameBoard = remember { mutableStateListOf(*List(100) { 0 }.toTypedArray()) }
-//    val ships = remember {
-//        mutableStateListOf(
-//            Ship(size = 4, start = 0),
-//            Ship(size = 3, start = 20),
-//            Ship(size = 2, start = 40),
-//            Ship(size = 2, start = 50),
-//            Ship(size = 1, start = 60),
-//            Ship(size = 1, start = 70)
-//        )
-//    }
 
-    Scaffold (
+
+    Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ){
-                        Text(text = "Set Up Board")
-                    }
+            TopAppBar(title = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "Set Up Board")
                 }
-            )
-        },
-        floatingActionButton = {
+            })
+        }, floatingActionButton = {
             Column {
-                ExtendedFloatingActionButton(
-                    onClick = { model.saveShipToFirebase("battleId", navController )
-                              navController.navigate("Battle")},                           // handel start game
+                ExtendedFloatingActionButton(onClick = { handleStartGame(navController, model, battles, gameBoard) },                           // handel start game
                     modifier = Modifier.padding(16.dp),
                     shape = CircleShape,
                     containerColor = Color(0xFFD3368E),
                     contentColor = Color.Black,
-                    content = { Text("Start Game") }
-                )
+                    content = { Text("Start Game") })
             }
-        },
-        content = { padding ->
-            Column (modifier = Modifier
-                .padding(padding)
-                .fillMaxSize(),
+        }, content = { padding ->
+            Column(
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
-            ){
+            ) {
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(10),
-                    modifier = Modifier.fillMaxSize()
-                ){
-                    items(gameCellGrid.size){ index ->
-                        val cell = gameCellGrid[index]
-                        Box (
+                    columns = GridCells.Fixed(10), modifier = Modifier.fillMaxSize()
+                ) {
+                    items(gameBoard.size) { item ->
+                        Box(
                             modifier = Modifier
                                 .size(40.dp)
-                                .background(if(cell.empty.value){Color.White}
-                                    else {Color.Gray})
-                                .border(1.dp, Color.Black).
-                                    pointerInput(cell){
-                                        detectDragGestures{
-                                            _, dragAmount ->
-                                            val ship = ships.firstOrNull{ it.start == index}
-                                            ship?.let{
-                                                val deltaX = dragAmount.x.toInt()/40
-                                                val deltaY = dragAmount.y.toInt()/40
-                                                val newX = (it.start % 10) + deltaX
-                                                val newY = (it.start / 10) + deltaY
-                                                val newPosition = newY * 10 + newX
-
-                                                model.moveShip(it, newPosition)
-
+                                .background(if (gameBoard[item] == 1) Color.Gray else Color.White)
+                                .border(1.dp, Color.Black)
+                                .pointerInput(Unit) {
+                                    detectDragGestures(
+                                        onDragStart = {
+                                            draggingShip = findShipAtPosition(item, model._ships)
+                                        },
+                                        onDragEnd = { draggingShip = null },
+                                        onDragCancel = { draggingShip = null },
+                                        onDrag = { change, dragAmount ->
+                                            change.consume()
+                                            draggingShip?.let { ship ->
+                                                val newStart = calculateNewStartPosition(
+                                                    ship,
+                                                    dragAmount,
+                                                    gameBoard.size
+                                                )
+                                                if (isValidPosition(
+                                                        newStart,
+                                                        ship.size,
+                                                        ship.orientation,
+                                                        gameBoard.size
+                                                    )
+                                                ) {
+                                                    gameBoard = updateBoardWithShip(
+                                                        gameBoard,
+                                                        ship,
+                                                        newStart
+                                                    )
+                                                    draggingShip = ship.copy(start = newStart)
+                                                }
                                             }
                                         }
-                                    }
-
-                                .clickable{
-                                    val selectedShip = ships.firstOrNull{ it.start == index}
-                                    selectedShip?.let{
-                                        model.toggleShipOrientation(it)
-                                    }
+                                    )
                                 }
-
                         )
                     }
                 }
@@ -116,7 +113,92 @@ fun SetUpBoardScreen(navController: NavController, model: GameModel) {
     )
 }
 
+fun findShipAtPosition(index: Int, ships: List<Ship>): Ship?{
+    return ships.find { ship ->
+        val positions = getShipPositions(ship)
+        index in positions
 
+    }
+}
+
+fun getShipPositions(ship: Ship): List<Int>{
+    return if ( ship.orientation == Orientation.HORIZONTAL)
+    {
+        (ship.start until ship.start + ship.size).toList()
+    }else { (0 until ship.size).map {ship.start +it*10 }
+
+    }
+}
+
+fun calculateNewStartPosition(ship: Ship, dragAmount:Offset, boardSize: Int): Int {
+    val rowSize = 10
+    val column = ship.start % rowSize
+    val row = ship.start / rowSize
+    val targetColumn = (column + (dragAmount.x / 40).toInt()).coerceIn(0,rowSize-1)
+    val targetRow = (row + (dragAmount.y / 40).toInt()).coerceIn(0,boardSize/ rowSize-1)
+    return targetRow * rowSize + targetColumn
+}
+
+fun isValidPosition(start: Int, size: Int, orientation: Orientation, boardSize: Int): Boolean {
+    val rowSize = 10
+    return (if  (orientation == Orientation.HORIZONTAL) {
+        val end = start+size-1
+        end < boardSize && (start / rowSize) == (end / rowSize)
+    }else {
+        val end = start +(size-1)*rowSize
+        end < boardSize
+    })
+
+}
+
+fun updateBoardWithShip(board: List<Int>, ship: Ship, newStart:Int): MutableList<Int> {
+    val newBoard = board.toMutableList()
+    val oldPositions = getShipPositions(ship)
+    val newPositions = if(ship.orientation == Orientation.HORIZONTAL){
+        (newStart until newStart + ship.size).toList()
+    }else {
+        (0 until ship.size).map{newStart + it*10}
+    }
+    oldPositions.forEach{newBoard[it] = 0}
+    newPositions.forEach{newBoard[it] = 1}
+    return newBoard
+}
+
+fun handleStartGame(navController: NavController,
+                    model: GameModel,
+                    battles: Map<String, Battle>,
+                    gameBoard: List<Int>) {
+
+    //"gameBoardP1" to model.placeShipInBoard(model._ships)
+
+    if (battles[model.localBattleId.value]?.player1Id == model.localPlayerId.value ) {
+        model.db.collection("battles").document(model.localBattleId.value!!)
+            .update("gameBoardP1", gameBoard).addOnSuccessListener {
+
+            if (battles[model.localBattleId.value]?.gameState == GameState.accepted) {
+                model.db.collection("battles").document(model.localBattleId.value!!)
+                    .update("gameState", GameState.waiting_for_opponent)
+            } else if (battles[model.localBattleId.value]?.gameState == GameState.waiting_for_opponent) {
+                model.db.collection("battles").document(model.localBattleId.value!!)
+                    .update("gameState", GameState.player1_turn)
+            }
+            navController.navigate("Battle")
+        }
+
+    } else if (battles[model.localBattleId.value]?.player2Id == model.localPlayerId.value) {
+        model.db.collection("battles").document(model.localBattleId.value!!)
+            .update("gameBoardP2", gameBoard).addOnSuccessListener {
+            if (battles[model.localBattleId.value]?.gameState == GameState.accepted) {
+                model.db.collection("battles").document(model.localBattleId.value!!)
+                    .update("gameState", GameState.waiting_for_opponent)
+            } else if (battles[model.localBattleId.value]?.gameState == GameState.waiting_for_opponent) {
+                model.db.collection("battles").document(model.localBattleId.value!!)
+                    .update("gameState", GameState.player1_turn)
+            }
+            navController.navigate("Battle")
+        }
+    }
+}
 
 
    /*

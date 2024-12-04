@@ -3,6 +3,7 @@ package com.example.battleship_delin_hiba
 
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
@@ -12,7 +13,6 @@ import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.key
 import androidx.compose.ui.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
@@ -24,7 +24,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.asStateFlow
 import kotlin.collections.get
 
-// Andra skärm som visas
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,33 +32,25 @@ fun LobbyScreen(
     model: GameModel,
     sharedPreferences: SharedPreferences,
 ) {
-    val players by model.playerMap.asStateFlow()
-        .collectAsStateWithLifecycle()        //ett sätt att samla info om spelare & aktiva matcher och göra tillgänglig till UI
+    val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
     val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
-    var showChallengePopup by remember { mutableStateOf(false) }                //för popup om man har fått en challenge, false då man har ej fått en
+    var showChallengePopup by remember { mutableStateOf(false) }
     var currentBattleId by model.localBattleId
-
-
-//om den lokala spelare är en av spelarna och deras tur så går man till setUppBoard
-//annars om spelare2 är aktiv så visas popup
     LaunchedEffect(battles) {
         battles.forEach { (gameId, battle) ->
-            if ((battle.player1Id == model.localPlayerId.value || battle.player2Id == model.localPlayerId.value) && battle.gamestate == "player1_turn") {
+            if ((battle.player1Id == model.localPlayerId.value || battle.player2Id == model.localPlayerId.value) && battle.gameState == GameState.accepted) {
                 navController.navigate("SetUpBoard")
-            } else if (battle.player2Id == model.localPlayerId.value && battle.gamestate == "Invite") {
+            } else if (battle.player2Id == model.localPlayerId.value && battle.gameState == GameState.Invite) {
                 showChallengePopup = true
                 currentBattleId = gameId
             }
         }
     }
-
-//om inget namn tilldelas då unknown
-//även kollar om spelare finns med i lista då tilldelas spelaren det namnet som matchar sin id
     var playerName = "Unknown?"
     players[model.localPlayerId.value]?.let {
         playerName = it.name
     }
-    Scaffold(                                                       //för tillbak knappen och online cirkel
+    Scaffold(
         topBar = {
             TopAppBar(
                 title = {
@@ -85,7 +76,7 @@ fun LobbyScreen(
                             model,
                             sharedPreferences
                         )
-                    })     //om man trycker på tillbaka knappen så skickas man tillbaka till main
+                    })
                     {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -113,7 +104,7 @@ fun LobbyScreen(
         },
         content = { padding -> PlayerListLoop(padding, model) },
         bottomBar = {
-            BottomAppBar(                                                                                 //för antal spelare i lobby och båten
+            BottomAppBar(
                 containerColor = Color(0xFFD3368E),
                 contentColor = Color.Black,
                 content = {
@@ -122,7 +113,7 @@ fun LobbyScreen(
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "${battles.size} active games")  // if statment där du räcknar vilka inte har game over för state
+                        Text(text = "${battles.size} active games")
                         Icon(
                             painter = painterResource(id = R.drawable.directions_boat),
                             contentDescription = "boat"
@@ -132,7 +123,7 @@ fun LobbyScreen(
             )
         }
     )
-    if (showChallengePopup) {                                             //om man accepterar challenge så visas popup
+    if (showChallengePopup) {
         ChallengePopup(
             navController = navController,
             model = model,
@@ -141,13 +132,9 @@ fun LobbyScreen(
         )
     }
 }
-
-//visar en lista av spelare och loopar igenom alla spelare i playerMap,
-//om lokal spelare visas som you,
-//för andra spelare antingen om aktiv inbjuda finns så waiting eller om aktiv inbjuda inte finns challenge knappen
 @Composable
 fun PlayerListLoop(padding: PaddingValues, model: GameModel) {
-    val playerMapCpy by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
+    val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
     val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
 
     LazyColumn(
@@ -155,7 +142,7 @@ fun PlayerListLoop(padding: PaddingValues, model: GameModel) {
             .fillMaxSize()
             .padding(padding)
     ) {
-        items(playerMapCpy.entries.toList()) { player ->
+        items(players.entries.toList()) { player ->
             if (player.key == model.localPlayerId.value) {                         //kollar om spelarensId matchar den lokala spelareId
                 ListItem(
                     leadingContent = {
@@ -164,7 +151,7 @@ fun PlayerListLoop(padding: PaddingValues, model: GameModel) {
                             contentDescription = "person"
                         )
                     },
-                    headlineContent = { Text(text = " ${playerMapCpy[model.localPlayerId.value]?.name} (you)") })           //om det matchar så visas namn med (you)
+                    headlineContent = { Text(text = " ${players[model.localPlayerId.value]?.name} (you)") })
             } else {
                 ListItem(
                     leadingContent = {
@@ -176,27 +163,17 @@ fun PlayerListLoop(padding: PaddingValues, model: GameModel) {
                     headlineContent = { Text(text = player.value.name) },
                     trailingContent = {
                         var hasGame =
-                            false                                                                    //annars loopar igenom matcher och kollar om någon har invitet till spelet
+                            false
                         battles.forEach { (gameId, battle) ->
-                            if (battle.player1Id == model.localPlayerId.value && battle.gamestate == "Invite") {
+                            if (battle.player1Id == model.localPlayerId.value && battle.gameState == GameState.Invite) {
                                 model.localBattleId.value = gameId
                                 hasGame = true
                                 Text("Waiting for accept...")
                             }
                         }
-                        if (!hasGame) {                                                                                 //och sen kollar om man inte är med i någon match
+                        if (!hasGame) {
                             Button(
-                                onClick = {
-                                    model.db.collection("battles").add(
-                                        Battle(
-                                            gamestate = "Invite",                                                      //inbjudan skickas och player1Id ändras till localPlayerId
-                                            player1Id = model.localPlayerId.value!!,
-                                            player2Id = player.key,
-                                            gameBoardP1 = List(100) { 0 },
-                                            gameBoardP2 = List(100) { 0 }
-                                        )
-                                    )
-                                },
+                                onClick = {handlePressChallenge(model, player.key, battles)},
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = Color(
                                         0xFFD3368E
@@ -226,7 +203,7 @@ fun ChallengePopup(
             Button(
                 onClick = {
                     model.db.collection("battles").document(battleId)
-                        .update("gamestate", "player1_turn").addOnSuccessListener {
+                        .update("gameState", GameState.accepted).addOnSuccessListener {
                             model.localBattleId.value = battleId
                             navController.navigate("SetUpBoard")
                         }
@@ -244,10 +221,6 @@ fun ChallengePopup(
         }
     )
 }
-//här hanteras popup, om man accepterar så uppdateras matchen i databasen och player1 tur, sen onDismiss tar bort popup
-// om man inte accepterar så tas bort matchen från databasen sen onDismiss tar bort popup
-
-
 fun handleLeaveLobby(
     navController: NavController,
     model: GameModel,
@@ -263,29 +236,17 @@ fun handleLeaveLobby(
         }
     }
 }
-//Kollar om det finns ett giltigt spelar-ID:
-//Om ja, fortsätter processen.
-//annars Tar bort spelaren från databasen. Nollställer det lokala spelar-ID:t i appen. Tar bort spelarens ID från databasen
-//Navigerar användaren tillbaka till main
-
-@Composable
-fun handlePressChallange( model: GameModel, key : String){
-    val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
-    val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
-    model.db.collection("battles").add(
-        Battle(
-            gamestate = "Invite",                                                      //inbjudan skickas och player1Id ändras till localPlayerId
-            player1Id = model.localPlayerId.value!!,
-            player2Id = key,
-            gameBoardP1 = List(100) { 0 },
-            gameBoardP2 = List(100) { 0 }
-        )
+fun handlePressChallenge(model: GameModel, key : String, battles: Map<String, Battle>){
+    val gameData = hashMapOf(
+        "gameState" to GameState.Invite,
+        "player1Id" to model.localPlayerId.value,
+        "player2Id" to key,
+        "gameBoardP1" to model.placeShipInBoard(model._ships),
+        "gameBoardP2" to model.placeShipInBoard(model._ships)
     )
-    if(model.localPlayerId.value == battles[model.localBattleId.value]?.player1Id){
-        model.localBoardId.value = battles[model.localBattleId.value]?.player1Id
-    } else if(model.localPlayerId.value == battles[model.localBattleId.value]?.player2Id){
-        model.localBoardId.value = battles[model.localBattleId.value]?.player2Id
+    model.db.collection("battles").add(gameData).addOnFailureListener{
+        Log.e("Firebase", "Error adding document: $it")
     }
+
 }
 
-// players[battles[model.localBattleId.value]?.player2Id]?.name
