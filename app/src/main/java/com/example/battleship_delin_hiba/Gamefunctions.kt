@@ -1,7 +1,5 @@
 package com.example.battleship_delin_hiba
 
-import android.R.attr.onClick
-import android.content.SharedPreferences
 import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -14,7 +12,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.material.icons.filled.AccountCircle
@@ -31,6 +28,7 @@ import kotlinx.coroutines.flow.asStateFlow
 fun BattleScreen(navController: NavController, model: GameModel) {
     val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
     val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
+   
 
     LaunchedEffect(model.localBattleId) {
         var currentBattleId by model.localBattleId
@@ -39,7 +37,7 @@ fun BattleScreen(navController: NavController, model: GameModel) {
             navController.navigate("Lobby")
         } else {
             val battle = model.battleMap.value[currentBattleId]
-            if (battle?.gamestate == "game over") {
+            if (battle?.gameState == GameState.Cancelled) {
                 model.db.collection("battles").document(currentBattleId!!).delete()
                     .addOnSuccessListener {
                         currentBattleId = null
@@ -56,7 +54,7 @@ fun BattleScreen(navController: NavController, model: GameModel) {
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "$")
+                    Text(text = "${model.localBattleId.value} Battle Id")
                 },
                 navigationIcon = {
                     IconButton(
@@ -134,14 +132,14 @@ fun BattleScreen(navController: NavController, model: GameModel) {
                 modifier = Modifier
                     .padding(start = 50.dp, end = 50.dp)
                     .fillMaxWidth()
-                    .height(400.dp)
+                    .height(400.dp).border(1.dp, Color.Black)
             ) {}
 
             LazyVerticalGrid(                        // and which board to show here
                 columns = GridCells.Fixed(100),
                 modifier = Modifier
                     .size(width = 200.dp, height = 200.dp)
-                    .padding(bottom = 10.dp)
+                    .padding(bottom = 10.dp).border(1.dp, Color.Black)
             ) {}
         }
     }
@@ -152,7 +150,7 @@ fun handleLeaveGame(navController: NavController, model: GameModel) {
     if (model.localBattleId.value != null) {
 
         model.db.collection("battles").document(model.localBattleId.value!!)
-            .update("gamestate", "game over").addOnSuccessListener {
+            .update("gameState", GameState.Cancelled).addOnSuccessListener {
             model.localBattleId.value = null
             navController.navigate("Lobby") {
                 popUpTo("Battle") { inclusive = true }

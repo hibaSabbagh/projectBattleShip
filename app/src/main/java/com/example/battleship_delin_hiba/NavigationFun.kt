@@ -6,20 +6,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.*
 
-data class Player (                         //data klass som representerar en spelare och namn en tom sträng som default
-    val name: String = "",
-    var status : String = ""
-)
-
-data class Battle(                            //data klass som representerar en battle och defaultvärden
-    val player1Id: String = "",
-    val player2Id: String = "",
-    val gamestate: String = "Invite",
-    var gameBoardP1: List<Int> = List(100) {0},
-    var gameBoardP2: List<Int> = List(100) {0}
-)
- const val rows = 10
- const val columns = 10
 
 @Composable
 fun BattleNav(){                                                           //hanterar navigationen mellan olika skärmar och skickar meddelanden mellan de
@@ -37,11 +23,4 @@ fun BattleNav(){                                                           //han
     }
 }
 
- // i * cols + j
-/*
-* fun getPosition(index: Int, boardSize: Int = 10): Pair<Int, Int> {
-    val row = index / boardSize
-    val column = index % boardSize
-    return Pair(row, column)
-}
-* */
+//game/{gameId}
