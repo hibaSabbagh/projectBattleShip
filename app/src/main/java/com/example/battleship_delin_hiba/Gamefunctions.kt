@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.times
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.asStateFlow
+import kotlin.math.log
 
 
 // Fjärde skärm som visas
@@ -165,7 +166,8 @@ fun BattleScreen(navController: NavController, model: GameModel) {
                                 )
                                 .border(1.dp, Color.Black)
                                 .clickable(
-                                    onClick = { model.handleTilePress(item, localBattleId) },
+                                    onClick = { model.handleTilePress(item, localBattleId)
+                                              Log.d("BattleScreen", "Tile clicked at index: $item")},
                                     enabled = (opponentBoard[item] == 0 || opponentBoard[item] == 1) && myTurn
                                 )
                         )
@@ -178,8 +180,8 @@ fun BattleScreen(navController: NavController, model: GameModel) {
                 columns = GridCells.Fixed(10),
                 modifier = Modifier
                     .size(
-                        width = (BoardConstants.CELL_SIZE * 10).dp,
-                        height = 200.dp)
+                        width = (100).dp,
+                        height = 100.dp)
                     .padding(bottom = 10.dp)
                     .border(1.dp, Color.Black)
             ) {
@@ -187,7 +189,7 @@ fun BattleScreen(navController: NavController, model: GameModel) {
                     items(playerBoard.size) { item ->
                         Box(
                             modifier = Modifier
-                                .size(BoardConstants.CELL_SIZE.dp)
+                                .size(10.dp)
                                 .background(
                                     when(playerBoard[item]){
                                         1->Color.Gray

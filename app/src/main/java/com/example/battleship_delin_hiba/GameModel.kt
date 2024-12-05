@@ -85,8 +85,6 @@ class GameModel :
     fun checkWin(board: List<Int>): Boolean {
         val playerHit = board.count { it == 2 }
         if (playerHit == 13) {
-            db.collection("battles").document(localBattleId.value!!)
-                .update("gameState", GameState.player1_win)
             return true
         }
         return false
@@ -94,6 +92,7 @@ class GameModel :
 
 
     fun handleTilePress(index: Int, BattleId: String?) {
+        println("BattleId: $BattleId index: $index")
         if (BattleId != null) {
             val battle = battleMap.value[BattleId]
             if (battle != null) {
