@@ -43,7 +43,7 @@ class GameModel :
         }
     }
 
-    val _ships = mutableStateListOf(
+    var _ships = mutableStateListOf(
         Ship(size = 4, start = 0, orientation = Orientation.HORIZONTAL),
         Ship(size = 3, start = 20, orientation = Orientation.HORIZONTAL),
         Ship(size = 2, start = 40, orientation = Orientation.HORIZONTAL),
@@ -73,11 +73,15 @@ class GameModel :
     }
 
 
-    fun changeShipOrientation(ship: Ship) {
-        if (ship.orientation == Orientation.HORIZONTAL) {
-            ship.orientation = Orientation.VERTICAL
-        } else if (ship.orientation == Orientation.VERTICAL) {
-            ship.orientation = Orientation.HORIZONTAL
+    fun changeShipOrientation(shipToChange: Ship, ships: List<Ship>): List<Ship> {
+        return ships.map { ship ->
+            if (shipToChange == ship) {
+                ship.copy(
+                    orientation = if (ship.orientation == Orientation.HORIZONTAL)
+                        Orientation.VERTICAL
+                     else
+                        Orientation.HORIZONTAL )
+            }else ship
         }
     }
 
@@ -92,14 +96,18 @@ class GameModel :
 
 
     fun handleTilePress(index: Int, BattleId: String?) {
-        println("BattleId: $BattleId index: $index")
+        Log.d("BattleScreen", "handleTilePress called with index: $index for ${BattleId.toString()}")
+        for(i in battleMap.value){
+            Log.d("BattleScreen", "handleTilePress called with BattleId: $i")
+        }
         if (BattleId != null) {
-            val battle = battleMap.value[BattleId]
+            val battle = battleMap.value[localBattleId.value]
             if (battle != null) {
+                Log.d("BattleScreen", "handleTilePress called with BattleId: $BattleId")
                 val myTurn =
                     battle.gameState == GameState.player1_turn && battle.player1Id == localPlayerId.value
                             || battle.gameState == GameState.player2_turn && battle.player2Id == localPlayerId.value
-                if (!myTurn) return
+
 
                 val opponentBoardKey: String
                 val opponentBoard: MutableList<Int>
@@ -113,13 +121,21 @@ class GameModel :
                     opponentBoard = battle.gameBoardP1.toMutableList()
                     nextGameState = GameState.player1_turn
                 }
-                if (opponentBoard[index] == 0) {
-                    opponentBoard[index] = -1
-                } else if (opponentBoard[index] == 1) {
-                    opponentBoard[index] = 2
-                } else {
-                    return
+                when (opponentBoard[index]) {
+                    0 -> {
+                        opponentBoard[index] = -1 // Sätt värdet till -1
+                        Log.d("BattleScreen", "Tile at index $index set to -1 (blue)")
+                    }
+                    1 -> {
+                        opponentBoard[index] = 2 // Exempel: ändra 1 till 2
+                        Log.d("BattleScreen", "Tile at index $index set to 2")
+                    }
+                    else -> {
+                        Log.d("BattleScreen", "Tile at index $index is not valid for change")
+                        return
+                    }
                 }
+
                 db.collection("battles").document(BattleId).update(opponentBoardKey, opponentBoard)
 
                 if (checkWin(opponentBoard)) {
@@ -128,10 +144,13 @@ class GameModel :
                     } else if (localPlayerId.value == battle.player2Id) {
                         db.collection("battles").document(BattleId).update("gameState", GameState.player2_win)
                     }
+                } else {
+                    db.collection("battles").document(BattleId).update("gameState", nextGameState)
                 }
-                db.collection("battles").document(BattleId).update("gameState", nextGameState)
             }
         }
+
+
     }
 }
 

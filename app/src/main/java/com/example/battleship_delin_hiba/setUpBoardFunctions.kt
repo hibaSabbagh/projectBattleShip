@@ -4,6 +4,7 @@ package com.example.battleship_delin_hiba
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
@@ -11,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -68,6 +70,10 @@ fun SetUpBoardScreen(navController: NavController, model: GameModel) {
                                 .size(BoardConstants.CELL_SIZE.dp)
                                 .background(if (gameBoard[item] == 1) Color.Gray else Color.White)
                                 .border(1.dp, Color.Black)
+                                .clickable (onClick = { model._ships =
+                                    model.changeShipOrientation(model._ships[item], model._ships).toMutableList() as SnapshotStateList<Ship>
+                                                                model.placeShipInBoard(model._ships)
+                                })
                                 .pointerInput(Unit) {
                                     detectDragGestures(
                                         onDragStart = {
