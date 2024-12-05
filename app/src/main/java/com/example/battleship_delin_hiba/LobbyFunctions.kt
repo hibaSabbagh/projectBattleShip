@@ -27,11 +27,7 @@ import kotlin.collections.get
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LobbyScreen(
-    navController: NavController,
-    model: GameModel,
-    sharedPreferences: SharedPreferences,
-) {
+fun LobbyScreen(navController: NavController, model: GameModel, sharedPreferences: SharedPreferences,) {
     val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
     val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
     var showChallengePopup by remember { mutableStateOf(false) }
@@ -162,8 +158,7 @@ fun PlayerListLoop(padding: PaddingValues, model: GameModel) {
                     },
                     headlineContent = { Text(text = player.value.name) },
                     trailingContent = {
-                        var hasGame =
-                            false
+                        var hasGame = false
                         battles.forEach { (gameId, battle) ->
                             if (battle.player1Id == model.localPlayerId.value && battle.gameState == GameState.Invite) {
                                 model.localBattleId.value = gameId
@@ -189,12 +184,7 @@ fun PlayerListLoop(padding: PaddingValues, model: GameModel) {
 }
 
 @Composable
-fun ChallengePopup(
-    navController: NavController,
-    model: GameModel,
-    battleId: String,
-    onDismiss: () -> Unit,
-) {
+fun ChallengePopup(navController: NavController, model: GameModel, battleId: String, onDismiss: () -> Unit, ){
     AlertDialog(
         onDismissRequest = { onDismiss() },
         title = { Text("Challenge Received") },
@@ -221,11 +211,11 @@ fun ChallengePopup(
         }
     )
 }
-fun handleLeaveLobby(
-    navController: NavController,
-    model: GameModel,
-    sharedPreferences: SharedPreferences,
-) {
+
+
+
+
+fun handleLeaveLobby(navController: NavController, model: GameModel, sharedPreferences: SharedPreferences, ){
     model.localPlayerId.value?.let {
         model.db.collection("players").document(it).delete().addOnSuccessListener {
             model.localPlayerId.value = null
@@ -236,6 +226,10 @@ fun handleLeaveLobby(
         }
     }
 }
+
+
+
+
 fun handlePressChallenge(model: GameModel, key : String, battles: Map<String, Battle>){
     val gameData = hashMapOf(
         "gameState" to GameState.Invite,
@@ -247,6 +241,5 @@ fun handlePressChallenge(model: GameModel, key : String, battles: Map<String, Ba
     model.db.collection("battles").add(gameData).addOnFailureListener{
         Log.e("Firebase", "Error adding document: $it")
     }
-
 }
 

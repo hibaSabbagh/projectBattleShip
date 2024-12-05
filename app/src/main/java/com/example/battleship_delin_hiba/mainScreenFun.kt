@@ -28,7 +28,6 @@ import java.util.UUID
 fun MainScreen(navController: NavController, model: GameModel, sharedPreferences: SharedPreferences) {  //för firebase
     val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
 
-
     LaunchedEffect(Unit) {
         model.localPlayerId.value = sharedPreferences.getString("playerId", null)
         if(model.localPlayerId.value != null){

@@ -19,6 +19,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.times
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -118,14 +119,9 @@ fun BattleScreen(navController: NavController, model: GameModel) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                Spacer(modifier = Modifier.width(20.dp))
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Column(horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Icon(                                               //ikon för player1
-                        imageVector = Icons.Filled.AccountCircle,
-                        contentDescription = "person",
-                        modifier = Modifier.size(40.dp)
+                    Icon( imageVector = Icons.Filled.AccountCircle, contentDescription = "person", modifier = Modifier.size(40.dp)
                     )
                     Text(text = "${players[playerId]?.name}")
                 }
@@ -136,42 +132,38 @@ fun BattleScreen(navController: NavController, model: GameModel) {
                         .padding(horizontal = 16.dp)
                         .size(40.dp),
                 )
-                Spacer(modifier = Modifier.width(20.dp))            //space mellan vs. och player2
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Spacer(modifier = Modifier.width(30.dp))            //space mellan vs. och player2
+                Column(horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Icon(                                                 //ikon för player2
-                        imageVector = Icons.Filled.AccountCircle,
-                        contentDescription = "person",
-                        modifier = Modifier.size(40.dp)
+                    Icon( imageVector = Icons.Filled.AccountCircle, contentDescription = "person", modifier = Modifier.size(40.dp)
                     )
                     Text(text = "${players[opponentId]?.name}")
                 }
             }
-            Spacer(
-                modifier = Modifier.height(50.dp)
-            )
-            LazyVerticalGrid(            // if statment to manage which board is here
-                columns = GridCells.Fixed(100),
+            Spacer(modifier = Modifier.height(30.dp))  //stora bräda
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(10),
                 modifier = Modifier
+                    .size((BoardConstants.CELL_SIZE * 10).dp)
                     .padding(start = 50.dp, end = 50.dp)
-                    .fillMaxWidth()
-                    .height(400.dp)
+//                    .fillMaxWidth()
+                    .height(200.dp)
                     .border(1.dp, Color.Black)
             ) {
                 if (opponentBoard != null) {
-
                     items(opponentBoard.size) { item ->
                         Box(
                             modifier = Modifier
-                                .size(20.dp)
+                                .size(BoardConstants.CELL_SIZE.dp)
                                 .background(
-                                    if (opponentBoard[item] == 2) {
-                                        Color.Red
-                                    } else if (opponentBoard[item] == -1) {
-                                        Color.Blue
-                                    } else Color.White
-                                ).border(1.dp, Color.Black)
+                                    when(opponentBoard[item]) {
+                                        2 -> Color.Red
+                                        -1 -> Color.Blue
+                                        else -> Color.White
+                                    }
+                                )
+                                .border(1.dp, Color.Black)
                                 .clickable(
                                     onClick = { model.handleTilePress(item, localBattleId) },
                                     enabled = (opponentBoard[item] == 0 || opponentBoard[item] == 1) && myTurn
@@ -180,10 +172,14 @@ fun BattleScreen(navController: NavController, model: GameModel) {
                     }
                 }
             }
-            LazyVerticalGrid(                        // and which board to show here
-                columns = GridCells.Fixed(100),
+            Spacer(modifier = Modifier.height(16.dp))    //lilla bräda
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(10),
                 modifier = Modifier
-                    .size(width = 200.dp, height = 200.dp)
+                    .size(
+                        width = (BoardConstants.CELL_SIZE * 10).dp,
+                        height = 200.dp)
                     .padding(bottom = 10.dp)
                     .border(1.dp, Color.Black)
             ) {
@@ -191,8 +187,17 @@ fun BattleScreen(navController: NavController, model: GameModel) {
                     items(playerBoard.size) { item ->
                         Box(
                             modifier = Modifier
-                                .size(20.dp)
-                                .background(Color.White)
+                                .size(BoardConstants.CELL_SIZE.dp)
+                                .background(
+                                    when(playerBoard[item]){
+                                        1->Color.Gray
+                                        2->Color.Red
+                                        -1->Color.Blue
+                                        else->Color.White
+                                    }
+                                )
+                                .border(1.dp, Color.Black)
+
                         )
                     }
                 }
@@ -204,7 +209,6 @@ fun BattleScreen(navController: NavController, model: GameModel) {
 
 fun handleLeaveGame(navController: NavController, model: GameModel) {
     if (model.localBattleId.value != null) {
-
         model.db.collection("battles").document(model.localBattleId.value!!)
             .update("gameState", GameState.Cancelled).addOnSuccessListener {
             model.localBattleId.value = null

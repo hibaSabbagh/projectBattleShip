@@ -25,12 +25,9 @@ import kotlinx.coroutines.flow.asStateFlow
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SetUpBoardScreen(navController: NavController, model: GameModel) {
-    //ett sätt att samla info om spelare & aktiva matcher och göra tillgänglig till UI
     val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
     var gameBoard by remember { mutableStateOf(model.placeShipInBoard(model._ships).toMutableList())}
     var draggingShip by remember { mutableStateOf<Ship?>(null) }
-
-
 
     Scaffold(
         topBar = {
@@ -60,12 +57,15 @@ fun SetUpBoardScreen(navController: NavController, model: GameModel) {
                 verticalArrangement = Arrangement.Top
             ) {
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(10), modifier = Modifier.fillMaxSize()
+                    columns = GridCells.Fixed(10),
+                    modifier = Modifier
+                        .size((BoardConstants.CELL_SIZE * 10).dp)
+                        .fillMaxSize()
                 ) {
                     items(gameBoard.size) { item ->
                         Box(
                             modifier = Modifier
-                                .size(40.dp)
+                                .size(BoardConstants.CELL_SIZE.dp)
                                 .background(if (gameBoard[item] == 1) Color.Gray else Color.White)
                                 .border(1.dp, Color.Black)
                                 .pointerInput(Unit) {
@@ -109,13 +109,7 @@ fun SetUpBoardScreen(navController: NavController, model: GameModel) {
     )
 }
 
-fun findShipAtPosition(index: Int, ships: List<Ship>): Ship?{
-    return ships.find { ship ->
-        val positions = getShipPositions(ship)
-        index in positions
 
-    }
-}
 
 fun getShipPositions(ship: Ship): List<Int>{
     return if ( ship.orientation == Orientation.HORIZONTAL)
@@ -126,6 +120,15 @@ fun getShipPositions(ship: Ship): List<Int>{
     }
 }
 
+
+fun findShipAtPosition(index: Int, ships: List<Ship>): Ship?{
+    return ships.find { ship ->
+        val positions = getShipPositions(ship)
+        index in positions
+    }
+}
+
+
 fun calculateNewStartPosition(ship: Ship, dragAmount:Offset, boardSize: Int): Int {
     val rowSize = 10
     val column = ship.start % rowSize
@@ -134,6 +137,7 @@ fun calculateNewStartPosition(ship: Ship, dragAmount:Offset, boardSize: Int): In
     val targetRow = (row + (dragAmount.y / 40).toInt()).coerceIn(0,boardSize/ rowSize-1)
     return targetRow * rowSize + targetColumn
 }
+
 
 fun isValidPosition(start: Int, size: Int, orientation: Orientation, boardSize: Int): Boolean {
     val rowSize = 10
@@ -160,13 +164,7 @@ fun updateBoardWithShip(board: List<Int>, ship: Ship, newStart:Int): MutableList
     return newBoard
 }
 
-fun handleStartGame(navController: NavController,
-                    model: GameModel,
-                    battles: Map<String, Battle>,
-                    gameBoard: List<Int>) {
-
-    //"gameBoardP1" to model.placeShipInBoard(model._ships)
-
+fun handleStartGame(navController: NavController, model: GameModel, battles: Map<String, Battle>, gameBoard: List<Int>) {    //"gameBoardP1" to model.placeShipInBoard(model._ships)
     if (battles[model.localBattleId.value]?.player1Id == model.localPlayerId.value ) {
         model.db.collection("battles").document(model.localBattleId.value!!)
             .update("gameBoardP1", gameBoard).addOnSuccessListener {

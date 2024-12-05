@@ -39,3 +39,6 @@ enum class GameState{
     waiting_for_opponent
 }
 
+object BoardConstants {
+    const val CELL_SIZE = 40
+}

@@ -1,6 +1,7 @@
 package com.example.battleship_delin_hiba
 
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -70,6 +71,8 @@ class GameModel :
         }
         return board
     }
+
+
     fun changeShipOrientation(ship: Ship) {
         if (ship.orientation == Orientation.HORIZONTAL) {
             ship.orientation = Orientation.VERTICAL
@@ -78,28 +81,63 @@ class GameModel :
         }
     }
 
+
+    fun checkWin(board: List<Int>): Boolean {
+        val playerHit = board.count { it == 2 }
+        if (playerHit == 13) {
+            db.collection("battles").document(localBattleId.value!!)
+                .update("gameState", GameState.player1_win)
+            return true
+        }
+        return false
+    }
+
+
     fun handleTilePress(index: Int, BattleId: String?) {
         if (BattleId != null) {
             val battle = battleMap.value[BattleId]
             if (battle != null) {
-                val myTurn = battle.gameState == GameState.player1_turn && battle.player1Id == localPlayerId.value
-                        || battle.gameState == GameState.player2_turn && battle.player2Id == localPlayerId.value
+                val myTurn =
+                    battle.gameState == GameState.player1_turn && battle.player1Id == localPlayerId.value
+                            || battle.gameState == GameState.player2_turn && battle.player2Id == localPlayerId.value
+                if (!myTurn) return
 
-               if(localPlayerId.value == battle.player1Id){
-                   if(myTurn){
-                       val gameBoardP2 = battle.gameBoardP2.toMutableList()
-                       if(gameBoardP2[index] == 0){
-                           gameBoardP2[index] = -1
-                       } else if(gameBoardP2[index] == 1){
-                           gameBoardP2[index] = 2
-                       }
-                       db.collection("battles").document(BattleId).update("gameBoardP2", gameBoardP2)
-                   }
-               }
+                val opponentBoardKey: String
+                val opponentBoard: MutableList<Int>
+                val nextGameState: GameState
+                if (localPlayerId.value == battle.player1Id) {
+                    opponentBoardKey = "gameBoardP2"
+                    opponentBoard = battle.gameBoardP2.toMutableList()
+                    nextGameState = GameState.player2_turn
+                } else {
+                    opponentBoardKey = "gameBoardP1"
+                    opponentBoard = battle.gameBoardP1.toMutableList()
+                    nextGameState = GameState.player1_turn
+                }
+                if (opponentBoard[index] == 0) {
+                    opponentBoard[index] = -1
+                } else if (opponentBoard[index] == 1) {
+                    opponentBoard[index] = 2
+                } else {
+                    return
+                }
+                db.collection("battles").document(BattleId).update(opponentBoardKey, opponentBoard)
+
+                if (checkWin(opponentBoard)) {
+                    if (localPlayerId.value == battle.player1Id) {
+                        db.collection("battles").document(BattleId).update("gameState", GameState.player1_win)
+                    } else if (localPlayerId.value == battle.player2Id) {
+                        db.collection("battles").document(BattleId).update("gameState", GameState.player2_win)
+                    }
+                }
+                db.collection("battles").document(BattleId).update("gameState", nextGameState)
             }
         }
     }
 }
+
+
+
 
 // i * cols + j
 /*
