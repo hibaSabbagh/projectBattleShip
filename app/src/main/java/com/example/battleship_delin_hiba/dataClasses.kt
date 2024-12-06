@@ -5,28 +5,14 @@ data class Player (                         //data klass som representerar en sp
     var status : String = ""
 )
 
-data class Battle(                            //data klass som representerar en battle och defaultvärden
+data class Battle(
+    //data klass som representerar en battle och defaultvärden
     val player1Id: String = "",
     val player2Id: String = "",
     var gameState: GameState = GameState.Invite,
-    var gameBoardP1: List<Int> = List(100) {0},
-    var gameBoardP2: List<Int> = List(100) {0}
+    var gameBoardP1: List<Int> = List(100) { 0 },
+    var gameBoardP2: List<Int> = List(100) { 0 },
 )
-
-
-
-enum class  Orientation{
-    HORIZONTAL,
-    VERTICAL
-}
-
-data class Ship(
-    val size: Int,
-    var start : Int,
-    var orientation: Orientation = Orientation.VERTICAL,
-
-    )
-
 
 enum class GameState{
     Invite,

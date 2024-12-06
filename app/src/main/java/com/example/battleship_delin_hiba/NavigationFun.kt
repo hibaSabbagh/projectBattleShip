@@ -14,13 +14,12 @@ fun BattleNav(){                                                           //han
     model.initGame()
     val sharedPreferences = LocalContext.current.getSharedPreferences("BattleShipPrefs", Context.MODE_PRIVATE)
 
-    NavHost(navController = navController, startDestination = "Main"){                                                   //lägger in model i alla
+    NavHost(navController = navController, startDestination = "Main"){
         composable("Main"){ MainScreen(navController,model, sharedPreferences) }
         composable("Lobby"){ LobbyScreen(navController, model, sharedPreferences) }
         composable("SetUpBoard"){ SetUpBoardScreen(navController,model) }
-        composable("Battle"){ /*backStackEntry -> val battleID = backStackEntry.arguments?.getString("battleId")*/
-            BattleScreen(navController, model) }
+        composable("Battle/{battleId}"){ backStackEntry ->
+            val battleID = backStackEntry.arguments?.getString("battleId")
+            BattleScreen(navController, model,battleID) }
     }
 }
-
-//game/{gameId}
