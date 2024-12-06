@@ -27,11 +27,13 @@ import kotlin.collections.get
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LobbyScreen(navController: NavController, model: GameModel, sharedPreferences: SharedPreferences,) {
+fun LobbyScreen(navController: NavController, model: GameModel, sharedPreferences: SharedPreferences) {
     val players by model.playerMap.asStateFlow().collectAsStateWithLifecycle()
     val battles by model.battleMap.asStateFlow().collectAsStateWithLifecycle()
     var showChallengePopup by remember { mutableStateOf(false) }
+
     var currentBattleId by model.localBattleId
+
     LaunchedEffect(battles) {
         battles.forEach { (gameId, battle) ->
             if ((battle.player1Id == model.localPlayerId.value || battle.player2Id == model.localPlayerId.value) && battle.gameState == GameState.accepted) {
@@ -39,6 +41,8 @@ fun LobbyScreen(navController: NavController, model: GameModel, sharedPreference
             } else if (battle.player2Id == model.localPlayerId.value && battle.gameState == GameState.Invite) {
                 showChallengePopup = true
                 currentBattleId = gameId
+            } else if (battle.gameState == GameState.Cancelled) {
+                model.db.collection("battles").document(gameId).delete()
             }
         }
     }
@@ -184,7 +188,7 @@ fun PlayerListLoop(padding: PaddingValues, model: GameModel) {
 }
 
 @Composable
-fun ChallengePopup(navController: NavController, model: GameModel, battleId: String, onDismiss: () -> Unit, ){
+fun ChallengePopup(navController: NavController, model: GameModel, battleId: String, onDismiss: () -> Unit){
     AlertDialog(
         onDismissRequest = { onDismiss() },
         title = { Text("Challenge Received") },
@@ -215,7 +219,7 @@ fun ChallengePopup(navController: NavController, model: GameModel, battleId: Str
 
 
 
-fun handleLeaveLobby(navController: NavController, model: GameModel, sharedPreferences: SharedPreferences, ){
+fun handleLeaveLobby(navController: NavController, model: GameModel, sharedPreferences: SharedPreferences){
     model.localPlayerId.value?.let {
         model.db.collection("players").document(it).delete().addOnSuccessListener {
             model.localPlayerId.value = null
@@ -235,8 +239,8 @@ fun handlePressChallenge(model: GameModel, key : String, battles: Map<String, Ba
         "gameState" to GameState.Invite,
         "player1Id" to model.localPlayerId.value,
         "player2Id" to key,
-        "gameBoardP1" to model.placeShipInBoard(model._ships),
-        "gameBoardP2" to model.placeShipInBoard(model._ships)
+        "gameBoardP1" to placeShipInBoard(_ships),
+        "gameBoardP2" to placeShipInBoard(_ships)
     )
     model.db.collection("battles").add(gameData).addOnFailureListener{
         Log.e("Firebase", "Error adding document: $it")
